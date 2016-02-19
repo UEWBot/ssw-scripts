@@ -1,0 +1,31 @@
+# ssw-scripts
+Scripts for Secret Society Wars (http://secretsocietywars.com/)
+
+The main pieces:
+ssw_report.py - Script to generate a daily report of the best trade and mining routes.
+
+ssw_asteroids.txt - Expected asteroids for the current cycle. Read by ssw_report.py.
+ssw_history.py - Writes out the history of SSW in human-readable form.
+ssw_map_utils.py - Utilities to extract higher-level info from a parsed SSW sector map.
+ssw_missing_links.py - This is essentially the structure of the maze in space for each cycle.
+			It is used to fill in the blanks where the current map has unexplored
+			(or forgotten) sectors.
+ssw_probes.py - Script to facilitate updating the sector map when at degree 33.
+			Reads a file containing known enemy sectors and figures out which unknown
+			sectors are worth probing.
+ssw_route.py - Script to find a route through an SSW sector map. This is particularly useful
+			for visiting all your facilities.
+ssw_sector_map2.py - Parser for a sector map HTML page from SSW. It also incorporates various
+			knowledge about the rules for SSW maps, including how they've changed over time.
+ssw_societies.py - Utilities to deal with SSW societies and alignments.
+ssw_trade_routes.py - Script to find trade routes (and LuvSats) from an SSW sector map.
+
+Other odds and ends:
+parse_sector_map.py - A primitive map parser. This was actually written after SSW was reborn,
+			but before I found the original scripts.
+possible_primes.py - Script to help find those 3 pieces in prime-numbered sectors. Not needed
+			now the quests have changed.
+ssw_sector_map.py - Older version of ssw_sector_map.py.
+ssw_track_movement.py - Script to figure out how things move over time. My conclusion was that
+			it's all random, so this hasn't been used for a while.
+
