@@ -201,6 +201,9 @@ def parse_asteroid_line(line):
     # Read the sector number, then skip to the next number
     sectors = []
     while i < len(ar):
+        if len(ar[i]) == 0:
+            i += 1
+            continue
         if ar[i][0] == '[':
             break
         tmp = ar[i]

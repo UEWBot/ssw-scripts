@@ -1,3 +1,4 @@
+Asteroids
   6 of 6 Afaikite asteroids in 111, 780, 915, 1025, 1044, 1075  [Amaranthine, , , Triadi, , ]
   6 of 6 Bofhozonite asteroids in 380, 627, 696, 877, 996, 1064  [, , Eastern Star, , Triadi, Triadi]
   6 of 6 Esabatmite asteroids in 100, 199, 452, 517, 742, 954  [, , , Triadi, , Illuminati]
