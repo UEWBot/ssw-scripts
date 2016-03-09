@@ -5097,3 +5097,6 @@ cycle_18_links = {2: [34, 36],
 1087: [1053, 1054, 1055],
 1088: [1054, 1056, 1089],
 1089: [1055, 1088]}
+
+# There was no anarchy period before war 19
+cycle_19_links = cycle_18_links

@@ -44,7 +44,8 @@ cycle_start = [None,
                datetime.datetime(3010, 10, 27, 23, 22),
                datetime.datetime(3010, 12, 19, 23, 8),
                datetime.datetime(3011, 7, 9, 23, 41),
-               datetime.datetime(3011, 10, 12, 23, 40)]
+               datetime.datetime(3011, 10, 12, 23, 40),
+               datetime.datetime(3016, 1, 4, 0, 34)] # no reset
 
 '''
 datetimes for the end of each war
@@ -312,6 +313,8 @@ def expected_missing_links(map_datetime):
         return ssw_missing_links.cycle_17_links
     elif (cycle(map_datetime) == 18):
         return ssw_missing_links.cycle_18_links
+    elif (cycle(map_datetime) == 19):
+        return ssw_missing_links.cycle_19_links
     else:
         # If we get here, we need to add missing links for this cycle
         return {}
