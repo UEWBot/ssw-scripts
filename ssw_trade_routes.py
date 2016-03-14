@@ -287,6 +287,7 @@ def usage(progname, map_file):
     print "  -b|--shield_ore - print places to buy shield ore (Bofhozonite) cheapest"
     print "  -l|--luvsats - print routes to luvsats"
     print "  -a|--asteroids - list asteroids"
+    print "  --ports - list trading ports"
     print "  -w|--probe - list sectors to probe"
     print "  -y|--your-drones - list where your drones are"
     print "  -n|--control - list number of sectors controlled by each society"
@@ -337,6 +338,7 @@ def main(*arguments):
     print_luvsats = False
     print_shields = False
     print_asteroids = False
+    print_trading_ports = False
     print_your_drones = False
     print_probe_sectors = False
     print_sectors_controlled = False
@@ -355,7 +357,7 @@ def main(*arguments):
 
     # Parse command-line options
     try:
-        opts, args = getopt.getopt(arguments,"smthjpcblawynexd:r:g:i:o:",["no-summary","no-trade","no-mining","help","dont-enhance","prices","cheapest-ore","shield-ore","luvsats","asteroids","probe","your-drones","control","empire","links","drones=","ore=","groceries=","input=","output="])
+        opts, args = getopt.getopt(arguments,"smthjpcblawynexd:r:g:i:o:",["no-summary","no-trade","no-mining","help","dont-enhance","prices","cheapest-ore","shield-ore","luvsats","asteroids","ports","probe","your-drones","control","empire","links","drones=","ore=","groceries=","input=","output="])
     except getopt.GetoptError:
         usage(sys.argv[0], map_file)
         sys.exit(2)
@@ -396,6 +398,8 @@ def main(*arguments):
             print_luvsats = True
         elif (opt == '-a') or (opt == '--asteroids'):
             print_asteroids = True
+        elif (opt == '--ports'):
+            print_trading_ports = True
         elif (opt == '-w') or (opt == '--probe'):
             print_probe_sectors = True
         elif (opt == '-y') or (opt == '--your-drones'):
@@ -731,6 +735,12 @@ def main(*arguments):
                 for ore,sectors in all_asteroids.items():
                     all_ast_sectors += [sector for sector in sectors if sector in drones_by_sector and drones_by_sector[sector] == soc]
                 print >>fout, "  %s (%d)" % (str(all_ast_sectors), len(all_ast_sectors))
+
+    if print_trading_ports:
+        print >>fout
+        print >>fout, "Trading Ports"
+        for port in p.trading_ports:
+            print >>fout, port
     
     if print_luvsats:
         print >>fout
