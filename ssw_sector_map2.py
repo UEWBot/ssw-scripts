@@ -798,7 +798,7 @@ class TradingPort:
 
     def full_name(self):
         '''Returns the full name of the trading port'''
-        return "Trader %s Trading Port #%d" % (self.name, self.sector)
+        return "Trader %s (sector %d)" % (self.name, self.sector)
 
     def alignment_str(self):
         '''Returns the alignment string (GE and OC numbers)'''
@@ -809,11 +809,11 @@ class TradingPort:
         return ssw_societies.initial(self.good, self.order)
 
     def __str__(self):
-        return "[%s, %s (%s), buys %s, sells %s]" % (self.full_name(),
-                                                     self.alignment_str(),
-                                                     self.society_initial(),
-                                                     self.buy_prices,
-                                                     self.sell_prices)
+        return "%s, %s (%s), buys %s, sells %s" % (self.full_name(),
+                                                   self.alignment_str(),
+                                                   self.society_initial(),
+                                                   self.buy_prices,
+                                                   self.sell_prices)
 
 JELLYFISH_RE = re.compile('Space Jellyfish in sector!')
 BLACKHOLE_RE = re.compile('Black Hole in sector!')
