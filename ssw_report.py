@@ -73,26 +73,27 @@ else:
     # We need to pre-pend the "featured trade route" and trading port info
     # Find a trade route to feature
     file = open(temp_filename)
+    best_ore = ''
     ore = ''
     price = 0
     best_length = ssw_sector_map.sectors_per_row 
     for line in file.xreadlines():
         # Look for the start of the next ore block
-        if line.find('profit buying') > -1:
+        if 'profit buying' in line:
             words = line.split()
             new_price = int(words[0])
             # Routes are in price order
-            if new_price < price:
-                # No point in looking further
+            if best_ore != '' and new_price < price:
+                # No point in looking further unless there were no routes for that ore
                 break
             # If we get here, either this is the first ore in the list,
-            # and ths a candidate for the best route, or we've found another
+            # and thus a candidate for the best route, or we've found another
             # ore at the same price, in which case we need to compare
-            # route lengths
+            # route lengths, or we rejected all earlier ores due to a lack or routes
             ore = words[3]
             price = new_price
         # If we have an ore, look for the first (shortest) route
-        elif ore != '' and line.find('moves -') > -1:
+        elif ore != '' and 'moves -' in line:
             words = line.split()
             length = int(words[0])
             if length < best_length:
