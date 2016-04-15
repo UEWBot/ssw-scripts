@@ -69,7 +69,8 @@ war_end = [None,
            datetime.datetime(3010, 12, 11, 23, 59),
            datetime.datetime(3011, 6, 17, 23, 59),
            datetime.datetime(3011, 10, 1, 23, 59),
-           datetime.datetime(3011, 12, 5, 23, 59)]
+           datetime.datetime(3011, 12, 5, 23, 59),
+           datetime.datetime(3016, 4, 8, 11, 20)]
 
 '''
 Flambe was a later addition
@@ -253,6 +254,31 @@ def expected_planets(map_datetime):
     # And then reappeared
     restored_planet = ('Hedrok', 707)
 
+    # There was a huge rework of planets after SSW was revived
+    v2_planets = [('Earth', 1),
+                  ('Boria', 65),
+                  ('Solaris', 81),
+                  ('Phallorus', 123),
+                  ('Deep Six Fauna', 142),
+                  ('Trinoc', 202),
+                  ('New Ceylon', 227),
+                  ('Eroticon 69', 313),
+                  ('Yeranus', 353),
+                  ('Nortonia', 366),
+                  ('Ahlnuldia', 471),
+                  ('Laxloo', 493),
+                  ('Xiao MeiMei', 612),
+                  ('Pharma', 721),
+                  ('Hedrok', 867),
+                  ('Barnimus', 880),
+                  ('Yipikaitain', 987),
+                  ('Tranquility', 995),
+                  ('Flambe', 1004)]
+
+    # Is the date after the huge re-work ?
+    if (map_datetime > war_end[19]):
+        return v2_planets
+
     # Map alterations
     if (map_datetime > planets_moved_datetime):
         retval += moved_planets_after
@@ -313,6 +339,9 @@ def expected_missing_links(map_datetime):
         return ssw_missing_links.cycle_17_links
     elif (cycle(map_datetime) == 18):
         return ssw_missing_links.cycle_18_links
+    # Map was reworked before cycle 20 started
+    elif (map_datetime > war_end[19]):
+        return ssw_missing_links.cycle_20_links
     elif (cycle(map_datetime) == 19):
         return ssw_missing_links.cycle_19_links
     else:
@@ -358,6 +387,18 @@ def expected_npc_stores(map_datetime):
         (gobbles_datetime, ('Gobble`s Chez Le` Turkle', 719))]
     leroy_tongs = ('Leroy Tong`s Trancendental Soul Food', 923)
     clingons = ('Clingon`s Around Yeranus', 30)
+    # Major rework when SSW was revived
+    v2_stores = [('Captain Jork`s Last Chance Saloon', 1075),
+                 ('Clingon`s Around Yeranus', 353),
+                 ('Leroy Tong`s Trancendental Soul Food', 923),
+                 ('Lucky Spaceman Liquor Store', 631),
+                 ('Gobble`s Chez Le` Turkle', 719),
+                 ('Salty Bob`s Waterin` Hole', 1),
+                 ('Syawillim', 502)]
+
+    # Is the date after the huge re-work ?
+    if (map_datetime > war_end[19]):
+        return v2_stores
 
     # Relocations
     if (map_datetime > planets_moved_datetime):
