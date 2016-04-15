@@ -346,7 +346,7 @@ def main(*arguments):
     max_trade_routes = 5
     max_mining_routes = 5
     min_buy_routes = 3
-    routes_to_print = 5
+    routes_to_print = 15
     society = None
     unexplored_sector_society = None
     ore_of_interest = None
