@@ -831,6 +831,8 @@ ASTEROID_RE = re.compile('There is an asteroid in this sector:</b><br>(\S*) Ore'
 PORT_GE_OC_RE = re.compile('GE: ([\d-]*) OC: ([\d-]*)')
 DRONES_RE = re.compile('<b>Drones:</b> ([^<]*)')
 YOUR_DRONES_RE = re.compile('Your Drones:</b> ([^<]*)')
+NAME_RE = re.compile('<b>(.*?)</b><br>')
+NOTES_RE = re.compile('<p><i>(.*)</i></p>')
 
 PRICE_RE = re.compile('(\S*) Ore \((\d*) SB\)')
 LINK_RE = re.compile('(\d*)')
@@ -843,6 +845,7 @@ class SectorMapParser():
     '''
     def __init__(self, page):
         self.soup = BeautifulSoup(page)
+
         self.ores_bought = {}
         self.ores_sold = {}
         self.missing_links = {}
@@ -861,7 +864,11 @@ class SectorMapParser():
         self.forgotten_sectors = []
         self.expected_totals = {}
         self.last_density = {}
+        self.names = {}
+        self.notes = {}
+
         self.parse_soup(self.soup)
+
         # This is fairly arbitrary - a balance between time taken and accuracy
         self.max_distance = 15
         # Populated on-demand in self.distances()
@@ -1037,6 +1044,12 @@ class SectorMapParser():
                                                   order,
                                                   ore_buys,
                                                   ore_sells))
+        m = NAME_RE.search(popup)
+        if m:
+            self.names[num] = m.group(1)
+        m = NOTES_RE.search(popup)
+        if m:
+            self.notes[num] = m.group(1)
 
     def ipt_in_sector(self, sector):
         '''
