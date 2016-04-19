@@ -67,6 +67,18 @@ def cycle_dates():
         cycle += 1
     return retval
 
+def space_changes():
+    '''
+    When space had a major rework
+    Returns a list of (date, event string) tuples
+    '''
+    retval = [(ssw_sector_map.space_mazified_datetime,
+               "Space became a maze"),
+              (ssw_sector_map.space_rework_datetime,
+               "Space was changed substantially, including moving planets and NPC stores")]
+    retval.sort()
+    return retval
+
 def planet_changes():
     '''
     When planets moved and appeared
@@ -89,7 +101,13 @@ def planet_changes():
               (ssw_sector_map.hedrok_removed_datetime,
                "Hedrok vanished, replaced by Yipikaitain"),
               (ssw_sector_map.hedrok_restored_datetime,
-               "Hedrok reappeared, in sector 707")]
+               "Hedrok reappeared, in sector 707"),
+              (ssw_sector_map.deep_six_removed_datetime,
+               "Deep Six Fauna was deep sixed"),
+              (ssw_sector_map.phallorus_removed_datetime,
+               "Phallorus disappeared"),
+              (ssw_sector_map.eroticon_69_removed_datetime,
+               "Eroticon 69 disappeared")]
     retval.sort()
     return retval
 
@@ -196,6 +214,7 @@ def main(*arguments):
 
     # TODO Provide command-line options to change these
     include_cycle_dates = True
+    include_space_changes = True
     include_planet_changes = True
     include_npc_store_changes = True
     include_love_boat = True
@@ -208,6 +227,8 @@ def main(*arguments):
         events += cycle_dates()
     if (include_planet_changes):
         events += planet_changes()
+    if (include_space_changes):
+        events += space_changes()
     if (include_npc_store_changes):
         events += npc_store_changes()
     if (include_love_boat):

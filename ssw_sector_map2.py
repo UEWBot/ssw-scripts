@@ -73,6 +73,11 @@ war_end = [None,
            datetime.datetime(3016, 4, 8, 11, 20)]
 
 '''
+Before this date, movement between adjacent sectors was almost unrestricted
+'''
+space_mazified_datetime = datetime.datetime(3010, 5, 22, 23, 59)
+
+'''
 Flambe was a later addition
 '''
 flambe_added_datetime = datetime.datetime(3010, 5, 30, 13, 22)
@@ -87,8 +92,25 @@ SSW came back from the dead.
 '''
 shutdown_datetime = datetime.datetime(3012, 02, 12)
 reboot_datetime = datetime.datetime(3015, 11, 17, 18, 12)
+
+'''
+Hedrok vanished, then reappeared
+'''
 hedrok_removed_datetime = datetime.datetime(3016, 1, 21, 23, 07)
 hedrok_restored_datetime = datetime.datetime(3016, 2, 10, 23, 03)
+
+'''
+There was a major rework of space.
+It was actually a bit spread out, but this was the start.
+'''
+space_rework_datetime = datetime.datetime(3016, 4, 9, 12, 10)
+
+'''
+Some old panets were removed after the major rework
+'''
+deep_six_removed_datetime = datetime.datetime(3016, 4, 17, 22, 5)
+phallorus_removed_datetime = datetime.datetime(3016, 4, 17, 22, 27)
+eroticon_69_removed_datetime = datetime.datetime(3016, 4, 18, 11, 37)
 
 '''
 Various NPS stores were later additions
@@ -258,11 +280,8 @@ def expected_planets(map_datetime):
     v2_planets = [('Earth', 1),
                   ('Boria', 65),
                   ('Solaris', 81),
-                  ('Phallorus', 123),
-                  ('Deep Six Fauna', 142),
                   ('Trinoc', 202),
                   ('New Ceylon', 227),
-                  ('Eroticon 69', 313),
                   ('Yeranus', 353),
                   ('Nortonia', 366),
                   ('Ahlnuldia', 471),
@@ -274,10 +293,19 @@ def expected_planets(map_datetime):
                   ('Yipikaitain', 987),
                   ('Tranquility', 995),
                   ('Flambe', 1004)]
+    leftovers = [('Deep Six Fauna', 142),
+                 ('Phallorus', 123),
+                 ('Eroticon 69', 313)]
 
     # Is the date after the huge re-work ?
-    if (map_datetime > war_end[19]):
+    if (map_datetime > eroticon_69_removed_datetime):
         return v2_planets
+    if (map_datetime > phallorus_removed_datetime):
+        return v2_planets + leftovers[2:]
+    if (map_datetime > deep_six_removed_datetime):
+        return v2_planets + leftovers[1:]
+    if (map_datetime > space_rework_datetime):
+        return v2_planets + leftovers
 
     # Map alterations
     if (map_datetime > planets_moved_datetime):
@@ -316,13 +344,12 @@ def expected_missing_links(map_datetime):
     """
     maze_free_sectors = {501: [467, 468, 469, 533, 534, 535],
                          502: [468, 469, 470, 501, 503, 534, 535, 536]}
-    cycle_13_map_change_datetime = datetime.datetime(3010, 5, 22, 23, 59)
     cycle_16_map_change_datetime = datetime.datetime(3011, 7, 3, 23, 59)
 
     if (cycle(map_datetime) < 13):
         return maze_free_sectors
     elif (cycle(map_datetime) == 13):
-        if (map_datetime < cycle_13_map_change_datetime):
+        if (map_datetime < space_mazified_datetime):
             return ssw_missing_links.cycle_13_war_links
         else:
             return ssw_missing_links.cycle_13_late_links
@@ -397,7 +424,7 @@ def expected_npc_stores(map_datetime):
                  ('Syawillim', 502)]
 
     # Is the date after the huge re-work ?
-    if (map_datetime > war_end[19]):
+    if (map_datetime > space_rework_datetime):
         return v2_stores
 
     # Relocations
