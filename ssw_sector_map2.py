@@ -331,7 +331,7 @@ def expected_missing_links(map_datetime):
     elif (cycle(map_datetime) == 15):
         return ssw_missing_links.cycle_15_links
     elif (cycle(map_datetime) == 16):
-        if (map_datetime < cycle_13_map_change_datetime):
+        if (map_datetime < cycle_16_map_change_datetime):
             return ssw_missing_links.cycle_16_war_links
         else:
             return ssw_missing_links.cycle_16_late_links
