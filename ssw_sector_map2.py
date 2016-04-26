@@ -345,6 +345,7 @@ def expected_missing_links(map_datetime):
     maze_free_sectors = {501: [467, 468, 469, 533, 534, 535],
                          502: [468, 469, 470, 501, 503, 534, 535, 536]}
     cycle_16_map_change_datetime = datetime.datetime(3011, 7, 3, 23, 59)
+    cycle_20_map_change_datetime = datetime.datetime(3016, 4, 25, 23, 59)
 
     if (cycle(map_datetime) < 13):
         return maze_free_sectors
@@ -368,7 +369,10 @@ def expected_missing_links(map_datetime):
         return ssw_missing_links.cycle_18_links
     # Map was reworked before cycle 20 started
     elif (map_datetime > war_end[19]):
-        return ssw_missing_links.cycle_20_links
+        if (map_datetime < cycle_20_map_change_datetime):
+            return ssw_missing_links.cycle_20_early_links
+        else:
+            return ssw_missing_links.cycle_20_links
     elif (cycle(map_datetime) == 19):
         return ssw_missing_links.cycle_19_links
     else:
