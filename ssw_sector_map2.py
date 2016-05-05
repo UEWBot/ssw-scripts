@@ -299,30 +299,32 @@ def expected_planets(map_datetime):
                  ('Eroticon 69', 313)]
 
     # Is the date after the huge re-work ?
-    if (map_datetime > eroticon_69_removed_datetime):
-        return v2_planets
-    if (map_datetime > phallorus_removed_datetime):
-        return v2_planets + leftovers[2:]
-    if (map_datetime > deep_six_removed_datetime):
-        return v2_planets + leftovers[1:]
     if (map_datetime > space_rework_datetime):
-        return v2_planets + leftovers
-
-    # Map alterations
-    if (map_datetime > planets_moved_datetime):
-        retval += moved_planets_after
-        retval += new_planets
+        if (map_datetime > eroticon_69_removed_datetime):
+            retval = v2_planets
+        elif (map_datetime > phallorus_removed_datetime):
+            retval = v2_planets + leftovers[2:]
+        elif (map_datetime > deep_six_removed_datetime):
+            retval = v2_planets + leftovers[1:]
+        else:
+            retval = v2_planets + leftovers
     else:
-        retval += moved_planets_before
-    if (map_datetime > flambe_added_datetime):
-        retval.append(flambe)
-    if (map_datetime > reboot_datetime):
-        retval.remove(removed_planet_1)
-    if (map_datetime > hedrok_removed_datetime):
-        retval.remove(removed_planet_2)
-        retval.append(replacement_planet)
-    if (map_datetime > hedrok_restored_datetime):
-        retval.append(restored_planet)
+        # Map alterations
+        if (map_datetime > planets_moved_datetime):
+            retval += moved_planets_after
+            retval += new_planets
+        else:
+            retval += moved_planets_before
+        if (map_datetime > flambe_added_datetime):
+            retval.append(flambe)
+        if (map_datetime > reboot_datetime):
+            retval.remove(removed_planet_1)
+        if (map_datetime > hedrok_removed_datetime):
+            retval.remove(removed_planet_2)
+            retval.append(replacement_planet)
+        if (map_datetime > hedrok_restored_datetime):
+            retval.append(restored_planet)
+
     # Intermittent planets
     if (mars_present(map_datetime)):
         retval.append(mars)
@@ -334,6 +336,7 @@ def expected_planets(map_datetime):
         sector = planet_x_sector(map_datetime.year)
         if (sector):
             retval.append((planet_x[0],sector))
+
     return retval
 
 '''Sectors that we expect to have missing links'''
