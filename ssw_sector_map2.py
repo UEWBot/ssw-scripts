@@ -1567,11 +1567,12 @@ class SectorMapParser():
         list of drones en route)
         Distance will be None if there's no route between the two
         '''
+        enemy_drones = self.enemy_drones(for_society,
+                                         unexplored_sector_society)
         # Short-circuiting at this point saves an awful lot of effort when there are lots of drones around
         # Otherwise, we can get hung up trying to find a route between a planet or IPT and a drone-free sector
         if (for_society != None):
-            if (from_sector in self.enemy_drones(for_society,
-                                                 unexplored_sector_society)) or (to_sector in self.enemy_drones(for_society, unexplored_sector_society)):
+            if (from_sector in enemy_drones) or (to_sector in enemy_drones):
                 return (None, None, None)
         # Could go via a planet
         (dest_name, dest_sector, dest_dist, dest_drones) = self.nearest_planet(to_sector, max_length, for_society, unexplored_sector_society)
@@ -1647,8 +1648,9 @@ class SectorMapParser():
         # Short-circuiting at this point saves an awful lot of effort when there are lots of drones around
         # Otherwise, we can get hung up trying to find a route between a planet or IPT and a drone-free sector
         if for_society != None:
-            if (from_sector in self.enemy_drones(for_society,
-                                                 unexplored_sector_society)) or (to_sector in self.enemy_drones(for_society, unexplored_sector_society)):
+            enemy_drones = self.enemy_drones(for_society,
+                                             unexplored_sector_society)
+            if (from_sector in enemy_drones) or (to_sector in enemy_drones):
                 return (sectors_per_row, fail_str, [])
 
         (start_planet, start_sector, start_dist, start_drones) = self.nearest_planet(from_sector, max_length, for_society, unexplored_sector_society)
