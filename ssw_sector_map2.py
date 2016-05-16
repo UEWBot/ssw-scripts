@@ -754,17 +754,20 @@ def a_route(from_sector,
             can_move_diagonally,
             missing_links={},
             avoiding_sectors=[],
-            max_length=max_route_length):
+            max_length=max_route_length,
+            min_length=0):
     '''
     Find a route from one sector to another
     Returns an ordered list of intermediate sectors
     Will return one shortest-distance route
     '''
-#    print "Looking for a route from %d to %d" % (from_sector, to_sector)
+    #print "Looking for a route from %d to %d" % (from_sector, to_sector)
     if (from_sector in avoiding_sectors) or (to_sector in avoiding_sectors):
         # No route is possible
         return None
     route_length = direct_distance(from_sector, to_sector)
+    if min_length > route_length:
+        route_length = min_length
     # Here's another optimisation - if all the sectors adjacent to either
     # the source or destination are impassable, drop out early
     # But only if we actually need to move
