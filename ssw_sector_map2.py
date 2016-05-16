@@ -858,7 +858,7 @@ def fly_distance(from_sector,
                    avoiding_sectors,
                    max)
     if temp != None:
-        return (len(temp), drones_en_route(temp,drones))
+        return (len(temp), drones_en_route(temp, drones))
     # If we get here, it's not possible to fly between those sectors
     return (None,[])
 
