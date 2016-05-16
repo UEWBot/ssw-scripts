@@ -87,14 +87,6 @@ def drone_str_for_sectors(sectors, drones_by_sector):
     drone_list = map(to_str, sectors)
     return '[' + ', '.join(drone_list) + ']'
 
-def drones_str(drones):
-    '''
-    Converts the list of drones en route to a string of societies.
-    '''
-    if len(drones):
-        return '[' + ', '.join(set(drones)) + ' drones]'
-    return '[no drones]'
-
 def print_best_ore_prices(p, ore_best_sectors, indent, society, buy, sell, unexplored_sector_society=None):
     '''
     Prints the best routes for ore_best_sectors
@@ -121,7 +113,7 @@ def print_best_ore_prices(p, ore_best_sectors, indent, society, buy, sell, unexp
                 order = -port.order
             print >>fout, "[GE:%+d OC:%+d]" % (good, order),
             if len(p.drones):
-                print >>fout, drones_str(drones)
+                print >>fout, ssw_map_utils.drones_str(drones)
             else:
                 print >>fout
         else:
@@ -159,7 +151,7 @@ def print_routes(p, sources, destinations, society, trade_at_start, unexplored_s
             order -= port.order
             print >>fout, "[GE:%+d OC:%+d]" % (good, order),
             if len(p.drones):
-                print >>fout, drones_str(route[2])
+                print >>fout, ssw_map_utils.drones_str(route[2])
             else:
                 print >>fout
         else:

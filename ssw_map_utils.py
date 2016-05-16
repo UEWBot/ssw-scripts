@@ -26,6 +26,14 @@ def to_dict(a):
         retval[x].append(y)
     return retval
 
+def drones_str(drones):
+    '''
+    Converts the list of drones en route to a string of societies.
+    '''
+    if len(drones):
+        return '[' + ', '.join(set(drones)) + ' drones]'
+    return '[no drones]'
+
 def enemy_drones_en_route(drones, society):
     '''
     Which of these drones are enemy ones ?

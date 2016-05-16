@@ -124,8 +124,8 @@ def main(*arguments):
             from_sector = to_sector
         print "Total distance is %d" % total_distance
         for route in overall_route:
-            print route
-        print drones
+            print route,
+        print ssw_map_utils.drones_str(drones)
 
     if dump_missing_links:
         var_str = "cycle_%d_links = " % p.cycle()
