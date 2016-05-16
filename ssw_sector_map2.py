@@ -133,7 +133,7 @@ This is the longest route that the code will bother looking for.
 The higher this number, the more time it will take, but the greater the
 likelihood of actually finding a route.
 '''
-max_route_length = 15
+max_route_length = 30
 
 '''All the known ores'''
 all_ores = ['Afaikite',
