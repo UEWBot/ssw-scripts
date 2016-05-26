@@ -743,8 +743,11 @@ def main(*arguments):
     if print_your_drones:
         print >>fout
         print >>fout, "Your Drones"
+        total_drones = 0
         for drones, sector in p.your_drones:
-            print >>fout, " %d drones in sector %d" % (drones, sector)
+            total_drones += drones
+            print >>fout, " %6d drones in sector %d" % (drones, sector)
+        print >>fout, " %6d drones in space in total" % (total_drones)
 
     # Check that this is today's map
     if not ssw_map_utils.is_todays(p):
