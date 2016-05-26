@@ -111,12 +111,28 @@ def changes(before, after, date):
         retval.append((date, '%s appeared in sector %d' % (diff[0], diff[1])))
     return retval
 
+def _changes_from_dates(dates, expected):
+    '''
+    Code shared between planet_changes() and npc_store_changes().
+    Calls expected() passing each of the datetimes in the dates list.
+    Calls changes() to compare successive return values.
+    '''
+    # Get the list of items for each date (add 1s to be sure we get the 'after' list)
+    items = []
+    for date in dates:
+        items.append(expected(date + datetime.timedelta(seconds=1)))
+    # Now find the differences between each pair
+    retval = []
+    for i in range(1,len(dates)):
+        retval += changes(items[i - 1], items[i], dates[i])
+    retval.sort()
+    return retval
+
 def planet_changes():
     '''
     When planets moved and appeared
     Returns a list of (date, event string) tuples
     '''
-    retval = []
     key_dates = [cycle_1_start,
                  ssw_sector_map.flambe_added_datetime,
                  ssw_sector_map.planets_moved_datetime,
@@ -130,37 +146,20 @@ def planet_changes():
                  ssw_sector_map.deep_six_removed_datetime,
                  ssw_sector_map.phallorus_removed_datetime,
                  ssw_sector_map.eroticon_69_removed_datetime]
-    # Find the list of planets before and after each of those dates
-    planets = []
-    for date in key_dates:
-        planets.append(ssw_sector_map.expected_planets(date + datetime.timedelta(minutes=1)))
-    # Now find the differences
-    for i in range(1,len(key_dates)):
-        retval += changes(planets[i - 1], planets[i], key_dates[i])
-    retval.sort()
-    return retval
+    return _changes_from_dates(key_dates, ssw_sector_map.expected_planets)
 
 def npc_store_changes():
     '''
     When NPC stores moved and appeared
     Returns a list of (date, event string) tuples
     '''
-    retval = []
     # Dates of interest
     key_dates = [cycle_1_start,
                  ssw_sector_map.leroy_tongs_datetime,
                  ssw_sector_map.planets_moved_datetime,
                  ssw_sector_map.clingons_datetime,
                  ssw_sector_map.gobbles_datetime]
-    # Find the list of stores before and after each of those dates
-    stores = []
-    for date in key_dates:
-        stores.append(ssw_sector_map.expected_npc_stores(date + datetime.timedelta(minutes=1)))
-    # Now find the differences
-    for i in range(1,len(key_dates)):
-        retval += changes(stores[i - 1], stores[i], key_dates[i])
-    retval.sort()
-    return retval
+    return _changes_from_dates(key_dates, ssw_sector_map.expected_npc_stores)
 
 def mars():
     '''
