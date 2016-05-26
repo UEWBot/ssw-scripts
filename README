@@ -25,7 +25,6 @@ parse_sector_map.py - A primitive map parser. This was actually written after SS
 			but before I found the original scripts.
 possible_primes.py - Script to help find those 3 pieces in prime-numbered sectors. Not needed
 			now the quests have changed.
-ssw_sector_map.py - Older version of ssw_sector_map.py.
 ssw_track_movement.py - Script to figure out how things move over time. My conclusion was that
 			it's all random, so this hasn't been used for a while.
 
