@@ -6,13 +6,14 @@ Script to print out some SSW history
 
 # Copyright 2011, 2015-2016 Squiffle
 
-# TODO Replace some hard-coded dates and sectors with stuff derived from ssw_sector_map
-
 import ssw_sector_map2 as ssw_sector_map
 import ssw_map_utils
 import operator, sys, getopt, datetime
 
 version = 1.00
+
+# We assume this to be the start of SSW itself
+cycle_1_start = ssw_sector_map.cycle_start[1]
 
 def usage(progname):
     '''
@@ -30,7 +31,10 @@ def ssw_was_running(date):
     '''
     True if the server was actually up.
     '''
-    return (date < ssw_sector_map.shutdown_datetime) or (date > ssw_sector_map.reboot_datetime)
+    server_up = date >= cycle_1_start
+    server_up = server_up and ((date < ssw_sector_map.shutdown_datetime)
+                                or (date > ssw_sector_map.reboot_datetime))
+    return server_up
 
 def server_shutdowns():
     '''
@@ -79,35 +83,60 @@ def space_changes():
     retval.sort()
     return retval
 
+def changes(before, after, date):
+    '''
+    Compares the 'before' and 'after' lists, identifying any changes between the two.
+    Returns a list of (date, change_string) tuples describing the changes.
+    'before' and 'after' should both be lists of (item, sector) tuples.
+    '''
+    retval = []
+    # Filter out all the items that are in both lists
+    only_before = set(before) - set(after)
+    only_after = set(after) - set(before)
+    # Go through all the unique entries in the before list
+    for diff in only_before:
+        # Check for an item with the same name in the after list
+        is_a_move = False
+        for diff2 in only_after:
+            if diff[0] == diff2[0]:
+                retval.append((date, '%s moved from sector %d to sector %d' % (diff[0], diff[1], diff2[1])))
+                only_after.remove(diff2)
+                is_a_move = True
+                break
+        # If it didn't move, it was removed
+        if not is_a_move:
+            retval.append((date, '%s disappeared from sector %d' % (diff[0], diff[1])))
+    # Any left in the after list are new additions
+    for diff in only_after:
+        retval.append((date, '%s appeared in sector %d' % (diff[0], diff[1])))
+    return retval
+
 def planet_changes():
     '''
     When planets moved and appeared
     Returns a list of (date, event string) tuples
     '''
-    retval = [(ssw_sector_map.flambe_added_datetime,
-               "Flambe appeared in sector 1070"),
-              (ssw_sector_map.planets_moved_datetime,
-               "Pharma moved from sector 102 to sector 721"),
-              (ssw_sector_map.planets_moved_datetime,
-               "New Ceylon moved from sector 92 to sector 227"),
-              (ssw_sector_map.planets_moved_datetime,
-               "Lucky Spaceman Distilleries moved from sector 49 to sector 631"),
-              (ssw_sector_map.planets_moved_datetime,
-               "Pinon Sol appeared in sector 707"),
-              (ssw_sector_map.planets_moved_datetime,
-               "Hedrok appeared in sector 888"),
-              (ssw_sector_map.reboot_datetime,
-               "Pinon Sol vanished again"),
-              (ssw_sector_map.hedrok_removed_datetime,
-               "Hedrok vanished, replaced by Yipikaitain"),
-              (ssw_sector_map.hedrok_restored_datetime,
-               "Hedrok reappeared, in sector 707"),
-              (ssw_sector_map.deep_six_removed_datetime,
-               "Deep Six Fauna was deep sixed"),
-              (ssw_sector_map.phallorus_removed_datetime,
-               "Phallorus disappeared"),
-              (ssw_sector_map.eroticon_69_removed_datetime,
-               "Eroticon 69 disappeared")]
+    retval = []
+    key_dates = [cycle_1_start,
+                 ssw_sector_map.flambe_added_datetime,
+                 ssw_sector_map.planets_moved_datetime,
+                 ssw_sector_map.planets_moved_datetime,
+                 ssw_sector_map.planets_moved_datetime,
+                 ssw_sector_map.planets_moved_datetime,
+                 ssw_sector_map.planets_moved_datetime,
+                 ssw_sector_map.reboot_datetime,
+                 ssw_sector_map.hedrok_removed_datetime,
+                 ssw_sector_map.hedrok_restored_datetime,
+                 ssw_sector_map.deep_six_removed_datetime,
+                 ssw_sector_map.phallorus_removed_datetime,
+                 ssw_sector_map.eroticon_69_removed_datetime]
+    # Find the list of planets before and after each of those dates
+    planets = []
+    for date in key_dates:
+        planets.append(ssw_sector_map.expected_planets(date + datetime.timedelta(minutes=1)))
+    # Now find the differences
+    for i in range(1,len(key_dates)):
+        retval += changes(planets[i - 1], planets[i], key_dates[i])
     retval.sort()
     return retval
 
@@ -116,14 +145,20 @@ def npc_store_changes():
     When NPC stores moved and appeared
     Returns a list of (date, event string) tuples
     '''
-    retval = [(ssw_sector_map.leroy_tongs_datetime,
-               "Leroy Tong's appeared in sector 923"),
-              (ssw_sector_map.planets_moved_datetime,
-               "Lucky Spaceman Liquor Store moved from sector 49 to sector 631"),
-              (ssw_sector_map.clingons_datetime,
-               "Clingon's appeared in sector 30"),
-              (ssw_sector_map.gobbles_datetime,
-               "Gobble's appeared in sector 719")]
+    retval = []
+    # Dates of interest
+    key_dates = [cycle_1_start,
+                 ssw_sector_map.leroy_tongs_datetime,
+                 ssw_sector_map.planets_moved_datetime,
+                 ssw_sector_map.clingons_datetime,
+                 ssw_sector_map.gobbles_datetime]
+    # Find the list of stores before and after each of those dates
+    stores = []
+    for date in key_dates:
+        stores.append(ssw_sector_map.expected_npc_stores(date + datetime.timedelta(minutes=1)))
+    # Now find the differences
+    for i in range(1,len(key_dates)):
+        retval += changes(stores[i - 1], stores[i], key_dates[i])
     retval.sort()
     return retval
 
@@ -133,13 +168,14 @@ def mars():
     Returns a list of (date, event string) tuples
     '''
     retval = []
+    first_ssw_year = cycle_1_start.year
     today = ssw_map_utils.today_in_ssw()
     this_ssw_year = today.year
-    for year in range(3008,this_ssw_year+1):
+    for year in range(first_ssw_year, this_ssw_year + 1):
         for month, day in ssw_sector_map.mars_dates:
             date = datetime.datetime(year, month, day, 0, 0)
             if (date <= today) and ssw_was_running(date):
-                retval.append((date, "Mars was in sector 4"))
+                retval.append((date, "Mars was in sector %d" % ssw_sector_map.mars[1]))
     return retval
 
 def love_boat():
