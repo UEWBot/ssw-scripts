@@ -105,7 +105,7 @@ def changes(before, after, date):
                 break
         # If it didn't move, it was removed
         if not is_a_move:
-            retval.append((date, '%s disappeared from sector %d' % (diff[0], diff[1])))
+            retval.append((date, '%s disappeared (from sector %d)' % (diff[0], diff[1])))
     # Any left in the after list are new additions
     for diff in only_after:
         retval.append((date, '%s appeared in sector %d' % (diff[0], diff[1])))
