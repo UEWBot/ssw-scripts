@@ -955,6 +955,7 @@ class SectorMapParser():
         self.unknown_sectors = []
         self.forgotten_sectors = []
         self.expected_totals = {}
+        self.density = {}
         self.last_density = {}
         self.names = {}
         self.notes = {}
@@ -1198,6 +1199,32 @@ class SectorMapParser():
                 return n
         return None
 
+    def asteroid_in_sector(self, sector):
+        '''Returns the ore of any asteroid in the sector, or None'''
+        for asteroid in self.asteroids:
+            if asteroid[1] == sector:
+                return asteroid
+        return None
+
+    def black_hole_in_sector(self, sector):
+        ''' Returns True if there is a black hole in the sector, False otherwise'''
+        return sector in self.black_holes
+
+    def npc_store_in_sector(self, sector):
+        ''' Returns the name of any NPC store in the sector, or None'''
+        for store in self.npc_stores:
+            if store[1] == sector:
+                return store
+        return None
+
+    def jellyfish_in_sector(self, sector):
+        ''' Returns True if there are space jellyfish in the sector, False otherwise'''
+        return sector in self.jellyfish
+
+    def luvsat_in_sector(self, sector):
+        ''' Returns True if there is a luvsat in the sector, False otherwise'''
+        return sector in self.luvsats
+
     def sector_of_planet(self, name):
         '''
         Returns the sector containing the specified planet, or None.
@@ -1206,6 +1233,42 @@ class SectorMapParser():
             if n == name:
                 return s
         return None
+
+    def sector_density(self, sector):
+        '''
+        Returns the calculated density of the specified sector
+        (for the last recorded density, if any, just access self.last_density[sector])
+        '''
+        density = 0
+        for item in self.density.keys():
+            if item == u'planet':
+                if self.planet_in_sector(sector):
+                    density += self.density[item]
+            elif item == u'asteroid':
+                if self.asteroid_in_sector(sector):
+                    density += self.density[item]
+            elif item == u'black hole':
+                if self.black_hole_in_sector(sector):
+                    density += self.density[item]
+            elif item == u'npc store':
+                if self.npc_store_in_sector(sector):
+                    density += self.density[item]
+            elif item == u'space jellyfish':
+                if self.jellyfish_in_sector(sector):
+                    density += self.density[item]
+            elif item == u'trading port':
+                if self.trading_port_in_sector(sector):
+                    density += self.density[item]
+            elif item == u'ipt beacon':
+                if self.ipt_in_sector(sector):
+                    density += self.density[item]
+            elif item == u'luvsat':
+                if self.luvsat_in_sector(sector):
+                    density += self.density[item]
+            else:
+                print "Unexpected item type %s" % item
+        # TODO Add in drones, if any
+        return density
 
     def parse_soup(self, soup):
         '''
@@ -1221,6 +1284,9 @@ class SectorMapParser():
 
         # Parse the number of each thing we know about
         for td in soup.body.find_all('td', width='8'):
+            m = DENSITY_RE.search(td.div.attrs['title'])
+            if m:
+                density = int(m.group(1))
             for td2 in td.next_siblings:
                 m = CONTENT_RE.search(unicode(td2.string))
                 if m:
@@ -1228,6 +1294,7 @@ class SectorMapParser():
                     item_count = int(m.group(2))
                     break
             self.expected_totals[item] = item_count
+            self.density[item] = density
 
         # Iterate through each sector
         for td in soup.body.find_all('td', width='4%'):
