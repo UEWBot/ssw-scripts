@@ -929,6 +929,8 @@ LINK_RE = re.compile('(\d*)')
 DENSITY_RE = re.compile('Density: (\d*)')
 CONTENT_RE = re.compile('(.*) \((\d*)\)')
 
+TELEPORTER_RE = re.compile('(.*) \((\d*)\)')
+
 class SectorMapParser():
     '''
     Class to parse the sector map
@@ -1239,6 +1241,19 @@ class SectorMapParser():
             self.parse_sector_popup(popup, sector)
             # Parse the sector colour
             self.extract_explored(link.attrs['style'], sector)
+
+        # Find the teleporter dropdown
+        for form in soup.body.find_all('form'):
+            if form.attrs['name'] == 'telform':
+                teleporter = form
+        for option in teleporter.find_all('option'):
+            m = TELEPORTER_RE.search(option.string)
+            if m:
+                planet = m.group(1)
+                sector = int(m.group(2))
+                if (planet, sector) not in self.planets:
+                    # TODO What should we do here ?
+                    print "Telporter menu item %s (%d) not found in map" % (planet, sector)
 
     def enhance_map(self):
         '''
