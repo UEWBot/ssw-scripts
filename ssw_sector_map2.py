@@ -896,6 +896,15 @@ class TradingPort:
                                                    self.buy_prices,
                                                    self.sell_prices)
 
+HOSTILITY_RE = re.compile('<B>PvP Hostility Level:</B> ([-\d]*) \(PvP:(\d*) - PsP:(\d*)\)')
+POWERUPS_RE = re.compile('<B>Powerup Distribution:</B> (\d*)%')
+MILITARY_CONTROL_RE = re.compile('<B>MILITARY CONTROL:</B><BR> ([^<]*)<BR>')
+MAJORITY_AVG_RE = re.compile('<b>Majority AVG:</b> (\d*)% of (\d*) HOURS')
+UNIVERSAL_ALIGNMENT_RE = re.compile('<B>UNIVERSAL ALIGNMENT:</B><BR> ([^<]*)<BR>')
+YIN_RE = re.compile('<B>Yin: </B>(\w*) ')
+YANG_RE = re.compile('<B>Yang: </B>(\w*) ')
+HIGH_RE = re.compile('<B>High:</B> (\d*)')
+
 JELLYFISH_RE = re.compile('Space Jellyfish in sector!')
 BLACKHOLE_RE = re.compile('Black Hole in sector!')
 TRADING_PORT_RE = re.compile('(Trader .* Trading Port #\d*)')
@@ -1034,6 +1043,41 @@ class SectorMapParser():
                 pass
         return result
 
+    def parse_universe_state_popup(self, popup):
+        """Parse all the universe info from 'popup'."""
+        m = HOSTILITY_RE.search(popup)
+        if m:
+            self.pvp_hostility = int(m.group(1))
+            self.pvps = int(m.group(2))
+            self.psps = int(m.group(3))
+            assert self.pvp_hostility == self.pvps - self.psps
+        m = POWERUPS_RE.search(popup)
+        if m:
+            self.powerups_percentage = int(m.group(1))
+            assert self.powerups_percentage < 101
+        m = MILITARY_CONTROL_RE.search(popup)
+        if m:
+            self.military_control = m.group(1)
+            assert self.military_control in ssw_societies.full_names
+        m = MAJORITY_AVG_RE.search(popup)
+        if m:
+            self.control_percentage = int(m.group(1))
+            assert self.control_percentage < 101
+            self.control_hours = int(m.group(2))
+        m = UNIVERSAL_ALIGNMENT_RE.search(popup)
+        if m:
+            self.universal_alignment = m.group(1)
+            assert self.universal_alignment in ssw_societies.full_names
+        m = YIN_RE.search(popup)
+        if m:
+            self.yin = m.group(1)
+        m = YANG_RE.search(popup)
+        if m:
+            self.yang = m.group(1)
+        m = HIGH_RE.search(popup)
+        if m:
+            self.high = int(m.group(1))
+
     def parse_sector_popup(self, popup, num):
         """Parse all the info about sector 'num' from 'popup'."""
         ore_buys = []
@@ -1167,8 +1211,11 @@ class SectorMapParser():
         '''
         # Find the span with overall universe info
         span = soup.body.find('span')
+        # Extract the map's date
         self.extract_date(unicode(span.contents[0].string))
-        # TODO parse out more interesting information
+        # parse out more interesting information
+        popup = span.attrs['onmouseover']
+        self.parse_universe_state_popup(popup)
 
         # Parse the number of each thing we know about
         for td in soup.body.find_all('td', width='8'):
