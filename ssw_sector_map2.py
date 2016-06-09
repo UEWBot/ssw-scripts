@@ -901,7 +901,7 @@ BLACKHOLE_RE = re.compile('Black Hole in sector!')
 TRADING_PORT_RE = re.compile('(Trader .* Trading Port #\d*)')
 BUYING_RE = re.compile('Buying:</b> ([^<]*)')
 SELLING_RE = re.compile('Selling:</b> ([^<]*)')
-DENSITY_RE = re.compile('Last Recorded Density: ([^<]*)')
+LAST_DENSITY_RE = re.compile('Last Recorded Density: ([^<]*)')
 PLANET_RE = re.compile('Planet:</b> ([^<]*)')
 LINKS_RE = re.compile('Links To: ([0-9, ]*)')
 PORT_ALIGNMENT_RE = re.compile('Alignment: ([^<.]*)')
@@ -1071,7 +1071,7 @@ class SectorMapParser():
             self.planets.append((m.group(1), num))
         # What's the last recorded density ?
         # Note that things may have moved around since this was recorded
-        m = DENSITY_RE.search(popup)
+        m = LAST_DENSITY_RE.search(popup)
         if m:
             self.known_sectors += 1
             self.last_density[num] = int(m.group(1))
