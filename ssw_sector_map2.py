@@ -1389,7 +1389,7 @@ class SectorMapParser():
         #text = text.replace('\xa0', ' ')
         text = text.replace('&nbsp;', ' ')
         temp = text.find('UTC:')
-        assert temp > -1,text
+        assert temp > -1, text
         words = text[temp:].split()
         self.datetime = datetime.datetime(int(words[4].split('<')[0]),
                                           int(months[words[2]]),
