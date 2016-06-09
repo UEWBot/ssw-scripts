@@ -103,7 +103,7 @@ def print_best_ore_prices(p, ore_best_sectors, indent, society, buy, sell, unexp
         if dis < ssw_sector_map.sectors_per_row:
             routes_printed += 1
             # Figure out the power impact of the trade(s)
-            port = p.trading_port(dest)
+            port = p.trading_port_in_sector(dest)
             assert port, "Trying to trade in sector %d" % dest
             if buy:
                 good = port.good
@@ -141,11 +141,11 @@ def print_routes(p, sources, destinations, society, trade_at_start, unexplored_s
             good = 0
             order = 0
             if trade_at_start:
-                port = p.trading_port(route[3])
+                port = p.trading_port_in_sector(route[3])
                 assert port, "Trying to buy from sector %d" % route[3]
                 good = port.good
                 order = port.order
-            port = p.trading_port(route[4])
+            port = p.trading_port_in_sector(route[4])
             assert port, "Trying to sell to sector %d" % route[4]
             good -= port.good
             order -= port.order

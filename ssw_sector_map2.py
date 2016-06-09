@@ -1520,7 +1520,7 @@ class SectorMapParser():
                                     max=x)
         return direct
 
-    def trading_port(self, in_sector):
+    def trading_port_in_sector(self, in_sector):
         '''
         Returns the trading port (if any) in the specified sector
         '''
