@@ -1089,7 +1089,6 @@ class SectorMapParser():
         # Trading port alignment ?
         m = PORT_ALIGNMENT_RE.search(popup)
         if m:
-            # TODO Not used
             port_alignment = m.group(1)
         m = PORT_GE_OC_RE.search(popup)
         if m:
@@ -1119,12 +1118,15 @@ class SectorMapParser():
         m = TRADING_PORT_RE.search(popup)
         if m:
             port_name = m.group(1)
-            self.trading_ports.append(TradingPort(port_name,
-                                                  num,
-                                                  good,
-                                                  order,
-                                                  ore_buys,
-                                                  ore_sells))
+            port = TradingPort(port_name,
+                               num,
+                               good,
+                               order,
+                               ore_buys,
+                               ore_sells)
+            # port_alignment should be what we derive from GE/OC
+            assert port_alignment == ssw_societies.full_name(port.society_initial()), "port_alignment = %s, not %s" % (port_alignment, ssw_societies.full_name(port.society_initial()))
+            self.trading_ports.append(port)
         m = NAME_RE.search(popup)
         if m:
             self.names[num] = m.group(1)

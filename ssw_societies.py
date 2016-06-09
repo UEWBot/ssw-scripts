@@ -14,7 +14,7 @@ full_names = ["The Order of the Amaranth",
               "The Order of the Eastern Star",
               "The Illuminati",
               "The Society of Oddfellows",
-              "The Triad Cabal"]
+              "The Triad Cabbal"]
 
 '''all the short names'''
 short_names = ["Amaranth",
@@ -36,6 +36,15 @@ class Invalid_Society(Exception):
     def __str__(self):
         return repr(self.value)
 
+def full_name(initial):
+    '''
+    Maps the initial letter of a society to the full name
+    '''
+    try:
+        return full_names[initials.index(initial.upper())]
+    except ValueError:
+        raise Invalid_Society, initial
+
 def adjective(initial):
     '''
     Maps the initial letter of a society to the adjective
@@ -47,7 +56,7 @@ def adjective(initial):
 
 def initial(good, order):
     '''
-    Maps a pair of Good/Evil and Order/Chaos numbers to a society initial
+    Maps a pair of Trading Port Good/Evil and Order/Chaos numbers to a society initial
     '''
     if good < 0:
         if order < 0:
