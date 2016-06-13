@@ -630,8 +630,12 @@ def main(*arguments):
         for distance, route, drones, src, dest in routes:
             # Don't print if no route
             if distance < ssw_sector_map.sectors_per_row:
-                print >>fout, "   %s" % (route)
-    
+                print >>fout, "   %s" % (route),
+                if len(p.drones):
+                    print >>fout, ssw_map_utils.drones_str(drones)
+                else:
+                    print >>fout
+
         if len(ore_sell[ore_of_interest]) > 0:
             print >>fout, "Places to get rid of %s ore" % ore_of_interest
         else:
