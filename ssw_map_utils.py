@@ -34,6 +34,17 @@ def drones_str(drones):
         return '[' + ', '.join(set(drones)) + ' drones]'
     return '[no drones]'
 
+def sector_str(sectors):
+    '''
+    Converts a list of sectors to a string suitable for printing
+    '''
+    retval = "sector(s) "
+    if len(sectors) == 0:
+        retval = 'no sectors'
+    else:
+        retval = ', '.join(map(str,sectors))
+    return retval
+
 def enemy_drones_en_route(drones, society):
     '''
     Which of these drones are enemy ones ?

@@ -51,17 +51,6 @@ def ports_str(sectors):
         retval = ', '.join(map(port_str,sectors))
     return retval
 
-def sector_str(sectors):
-    '''
-    Converts a list of sectors to a string suitable for printing
-    '''
-    retval = "sector(s) "
-    if len(sectors) == 0:
-        retval = 'no sectors'
-    else:
-        retval = ', '.join(map(str,sectors))
-    return retval
-
 def planet_str(planets):
     '''
     Converts a list of planets to a string suitable for printing
@@ -697,7 +686,7 @@ def main(*arguments):
             print >>fout, "  %d of %d %s asteroids in %s" % (len(all_asteroids[ore]),
                                                              p.expected_asteroids()/len(all_asteroids.keys()),
                                                              ore,
-                                                             sector_str(all_asteroids[ore])),
+                                                             ssw_map_utils.sector_str(all_asteroids[ore])),
             if (len(p.drones) > 0):
                 print >>fout, " %s" % ( drone_str_for_sectors(all_asteroids[ore],
                                                               drones_by_sector))
