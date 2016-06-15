@@ -7,7 +7,7 @@ Script to list the current set of trading ports in SSW
 # Copyright 2016 Squiffle
 
 import re, urllib
-import ssw_sector_map2 as ssw_sector_map
+from ssw_trading_port import TradingPort
 
 traders_url = "http://www.secretsocietywars.com/databuddy_ajax.php?factor=traders"
 TRADER_RE = re.compile(">(.* Trading Port #(\d*)).*Sells:(.*)Buys:(.*)")
@@ -40,7 +40,7 @@ def parse_traders(data):
                 ore = m2.group(1)
                 price = int(m2.group(2))
                 ore_buys.append((ore, price))
-        t = ssw_sector_map.TradingPort(name, num, ge, oc, ore_buys, ore_sells)
+        t = TradingPort(name, num, ge, oc, ore_buys, ore_sells)
         traders.append(t)
     return traders
 

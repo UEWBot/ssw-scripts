@@ -14,6 +14,7 @@ This is a copy of ssw_sector_map, reworked to use BeautifulSoup.
 import operator, datetime, unittest, re
 from bs4 import BeautifulSoup
 import ssw_missing_links, ssw_societies
+from ssw_trading_port import TradingPort
 
 '''Set this to True to log debugging information'''
 debug = False
@@ -864,37 +865,6 @@ def fly_distance(from_sector,
         return (len(temp), drones_en_route(temp, drones))
     # If we get here, it's not possible to fly between those sectors
     return (None,[])
-
-class TradingPort:
-    '''
-    Class to store everything about one trading port
-    '''
-    def __init__(self, name, sector, good, order, buy_prices, sell_prices):
-        self.name = name
-        self.sector = sector
-        self.good = good
-        self.order = order
-        self.buy_prices = buy_prices
-        self.sell_prices = sell_prices
-
-    def full_name(self):
-        '''Returns the full name of the trading port'''
-        return "Trader %s (sector %d)" % (self.name, self.sector)
-
-    def alignment_str(self):
-        '''Returns the alignment string (GE and OC numbers)'''
-        return "GE: %d OC: %d" % (self.good, self.order)
-
-    def society_initial(self):
-        '''Returns the initial of the society with which the port is aligned'''
-        return ssw_societies.initial(self.good, self.order)
-
-    def __str__(self):
-        return "%s, %s (%s), buys %s, sells %s" % (self.full_name(),
-                                                   self.alignment_str(),
-                                                   self.society_initial(),
-                                                   self.buy_prices,
-                                                   self.sell_prices)
 
 HOSTILITY_RE = re.compile('<B>PvP Hostility Level:</B> ([-\d]*) \(PvP:(\d*) - PsP:(\d*)\)')
 POWERUPS_RE = re.compile('<B>Powerup Distribution:</B> (\d*)%')
