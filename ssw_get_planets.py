@@ -7,7 +7,6 @@ Script to list the current set of planets in SSW
 # Copyright 2016 Squiffle
 
 import re, urllib
-import ssw_trade_routes
 
 planets_url = "http://www.secretsocietywars.com/databuddy_ajax.php?factor=planets"
 PLANET_RE = re.compile("img src='(.*?)'.*red;'>(\w*).*Sector:<\/b> (\d*)<br \/>(.*?)<br \/>")

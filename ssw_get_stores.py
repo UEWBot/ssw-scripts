@@ -7,7 +7,6 @@ Script to list the current set of NPC stores in SSW
 # Copyright 2016 Squiffle
 
 import re, urllib
-import ssw_trade_routes
 
 npc_stores_url = "http://www.secretsocietywars.com/databuddy_ajax.php?factor=stores"
 
