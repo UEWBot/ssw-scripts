@@ -7,49 +7,12 @@ Utilities to extract higher-level info from a parsed SSW sector map
 # Copyright 2008, 2015 Squiffle
 
 import ssw_sector_map2 as ssw_sector_map
+import ssw_utils
 import operator, datetime, unittest
 
 version = 1.00
 
 shield_ore = 'Bofhozonite'
-
-def to_dict(a):
-    '''
-    Internal - Takes a list of (key,value) tuples
-               Returns a dict indexed by key of lists of values
-    '''
-    # TODO There may be a better way to do this...
-    retval = {}
-    for (x,y) in a:
-        if x not in retval:
-            retval[x] = []
-        retval[x].append(y)
-    return retval
-
-def drones_str(drones):
-    '''
-    Converts the list of drones en route to a string of societies.
-    '''
-    if len(drones):
-        return '[' + ', '.join(set(drones)) + ' drones]'
-    return '[no drones]'
-
-def sector_str(sectors):
-    '''
-    Converts a list of sectors to a string suitable for printing
-    '''
-    retval = "sector(s) "
-    if len(sectors) == 0:
-        retval = 'no sectors'
-    else:
-        retval = ', '.join(map(str,sectors))
-    return retval
-
-def enemy_drones_en_route(drones, society):
-    '''
-    Which of these drones are enemy ones ?
-    '''
-    return [soc for soc in drones if soc != society]
 
 def drones_by_sector(in_map):
     '''
@@ -161,19 +124,11 @@ def known_sectors(in_map):
     '''
     return set(ssw_sector_map.all_sectors) - set(all_unknown_sectors(in_map))
 
-def today_in_ssw():
-    '''
-    Return the datetime representing 'now' in SSW
-    '''
-    today = datetime.datetime.now()
-    # Map datetimes are 1000 years in the future
-    return today.replace(today.year+1000)
-
 def is_todays(in_map):
     '''
     Check whether this is today's map
     '''
-    if (today_in_ssw() - in_map.datetime) > datetime.timedelta(1):
+    if (ssw_utils.today_in_ssw() - in_map.datetime) > datetime.timedelta(1):
         return False
     return True
 
@@ -212,7 +167,7 @@ def asteroids_by_ore(in_map, society=None):
     Returns a dictionary, keyed by ore, of lists of sectors with asteroids
     Includes no sectors with enemy drones if society is specified.
     '''
-    asts = to_dict(in_map.asteroids)
+    asts = ssw_utils.to_dict(in_map.asteroids)
     if society != None:
         # Filter out asteroids in drone-filled sectors
         drones = drones_by_sector(in_map)
@@ -284,9 +239,9 @@ def places_to_sell_ore(in_map, ore, society=None):
     sorted highest to lowest price
     Includes no sectors with enemy drones if society is specified.
     '''
-    ore_bought_dict = to_dict(drone_free_price_list(ores_bought(in_map, ore),
-                                                    drones_by_sector(in_map),
-                                                    society))
+    ore_bought_dict = ssw_utils.to_dict(drone_free_price_list(ores_bought(in_map, ore),
+                                                              drones_by_sector(in_map),
+                                                              society))
     return sorted(ore_bought_dict.iteritems(),
                   key = operator.itemgetter(0),
                   reverse=True)
@@ -329,9 +284,9 @@ def places_to_buy_ore(in_map, ore, society=None):
     sorted lowest to highest price
     Includes no sectors with enemy drones if society is specified.
     '''
-    ore_sold_dict = to_dict(drone_free_price_list(ores_sold(in_map, ore),
-                                                  drones_by_sector(in_map),
-                                                  society))
+    ore_sold_dict = ssw_utils.to_dict(drone_free_price_list(ores_sold(in_map, ore),
+                                                            drones_by_sector(in_map),
+                                                            society))
     return sorted(ore_sold_dict.iteritems(), key = operator.itemgetter(0))
 
 def best_places_to_buy_ore(in_map, ore, society=None):
@@ -366,51 +321,4 @@ def best_places_to_buy_ores(in_map, society=None):
         ore_best_buy[ore] = best_places_to_buy_ore(in_map, ore, society)
     return ore_best_buy
 
-# TODO Add more unit tests (all the other functions take a map parameter)
-
-class ToDictNormal(unittest.TestCase):
-    def testEmptyList(self):
-        '''to_dict musthandle an empty list'''
-        result = to_dict([])
-        self.assertEqual(result, {})
-
-    def testSingleValues(self):
-        '''to_dict should create lists of single values where appropriate'''
-        result = to_dict([(1, 'a')])
-        self.assertEqual(result, {1: ['a']})
-
-    def testMultiValues(self):
-        '''to_dict should create lists of values where appropriate'''
-        result = to_dict([(1, 'a'), (1, 'b')])
-        self.assertEqual(result, {1: ['a', 'b']})
-
-class EnemyDrones(unittest.TestCase):
-    def testNoMatch(self):
-        '''enemy_drones_en_route should return the same list if there are no matches'''
-        input = ['a', 'b', 'c']
-        result = enemy_drones_en_route(input, 'd')
-        self.assertEqual(result, input)
-
-    def testOneMatch(self):
-        '''enemy_drones_en_route should remove a single match'''
-        result = enemy_drones_en_route(['a', 'b', 'c'], 'b')
-        self.assertEqual(result, ['a', 'c'])
-
-    def testMultiMatch(self):
-        '''enemy_drones_en_route should remove multiple matches'''
-        result = enemy_drones_en_route(['a', 'b', 'c', 'a'], 'a')
-        self.assertEqual(result, ['b', 'c'])
-
-    def testAllMatch(self):
-        '''enemy_drones_en_route should return an empty list if all match'''
-        result = enemy_drones_en_route(['a', 'a'], 'a')
-        self.assertEqual(result, [])
-
-    def testEmptyList(self):
-        '''enemy_drones_en_route should handle an empty list'''
-        result = enemy_drones_en_route([], 'a')
-        self.assertEqual(result, [])
-
-if __name__ == "__main__":
-    unittest.main()
-
+# TODO Add unit tests

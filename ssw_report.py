@@ -9,7 +9,7 @@ Script to create my daily trade reports
 # TODO: Add command-line options to specify filenames
 
 import ssw_sector_map2 as ssw_sector_map
-import ssw_trade_routes, ssw_societies, ssw_map_utils
+import ssw_trade_routes, ssw_societies
 import sys, getopt
 
 version = 0.1

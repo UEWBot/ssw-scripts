@@ -7,7 +7,7 @@ Script to list the current set of asteroids in SSW
 # Copyright 2016 Squiffle
 
 import re, urllib
-import ssw_map_utils
+import ssw_utils
 
 asteroids_url = "http://www.secretsocietywars.com/databuddy_ajax.php?factor=asteroids"
 ORE_RE = re.compile("(\w*) Ore")
@@ -50,7 +50,7 @@ def main():
         print "%d of %d %s asteroids in %s" % (len(a[ore]),
                                                len(a[ore]),
                                                ore,
-                                               ssw_map_utils.sector_str(a[ore]))
+                                               ssw_utils.sector_str(a[ore]))
 
 if __name__ == '__main__':
     main()

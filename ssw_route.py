@@ -7,7 +7,8 @@ Script to find a route through an SSW sector map
 # Copyright 2009, 2015 Squiffle
 
 import ssw_sector_map2 as ssw_sector_map
-import ssw_map_utils, ssw_societies, operator, sys, getopt, datetime
+import ssw_map_utils, ssw_societies, ssw_utils
+import operator, sys, getopt, datetime
 
 version = 1.00
 
@@ -125,7 +126,7 @@ def main(*arguments):
         print "Total distance is %d" % total_distance
         for route in overall_route:
             print route,
-        print ssw_map_utils.drones_str(drones)
+        print ssw_utils.drones_str(drones)
 
     if dump_missing_links:
         var_str = "cycle_%d_links = " % p.cycle()

@@ -5,7 +5,8 @@
 # Copyright 2008, 20015 Squiffle
 
 import ssw_sector_map2 as ssw_sector_map
-import operator, sys, getopt, datetime, copy, glob, ssw_map_utils
+import ssw_utils
+import operator, sys, getopt, datetime, copy, glob
 
 version = 0.01
 
@@ -189,8 +190,8 @@ if track_asteroids:
         print >>fout
         print >>fout, "Longest distances from %s to %s for asteroids:" % (str(m.datetime),str(m2.datetime))
         # Pair up matching items in the two lists
-        l1 = ssw_map_utils.to_dict(m.asteroids)
-        l2 = ssw_map_utils.to_dict(m2.asteroids)
+        l1 = ssw_utils.to_dict(m.asteroids)
+        l2 = ssw_utils.to_dict(m2.asteroids)
         for ore in l1.keys():
             mapping = closest_mapping(l1[ore],l2[ore])
             if len(mapping) > 0:
@@ -224,8 +225,8 @@ if track_npc_stores:
         print >>fout
         print >>fout, "Longest distances from %s to %s for NPC stores:" % (str(m.datetime),str(m2.datetime))
         # Pair up matching items in the two lists
-        l1 = ssw_map_utils.to_dict(m.npc_stores)
-        l2 = ssw_map_utils.to_dict(m2.npc_stores)
+        l1 = ssw_utils.to_dict(m.npc_stores)
+        l2 = ssw_utils.to_dict(m2.npc_stores)
         for store in l1.keys():
             mapping = closest_mapping(l1[store],l2[store])
             if len(mapping) > 0:
@@ -294,8 +295,8 @@ if track_ipt_beacons:
         print m.ipts
         print m2.ipts
         # Pair up matching items in the two lists
-        l1 = ssw_map_utils.to_dict(m.ipts)
-        l2 = ssw_map_utils.to_dict(m2.ipts)
+        l1 = ssw_utils.to_dict(m.ipts)
+        l2 = ssw_utils.to_dict(m2.ipts)
         print l1
         print l2
 #        for dest in l1.keys():

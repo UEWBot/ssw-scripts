@@ -7,7 +7,7 @@ Script to print out some SSW history
 # Copyright 2011, 2015-2016 Squiffle
 
 import ssw_sector_map2 as ssw_sector_map
-import ssw_map_utils
+import ssw_utils
 import operator, sys, getopt, datetime
 
 version = 1.00
@@ -60,7 +60,7 @@ def cycle_dates():
         if (cycle > 0):
             retval.append((start, "Cycle %d started" % cycle))
             if (war_end == None):
-                today = ssw_map_utils.today_in_ssw()
+                today = ssw_utils.today_in_ssw()
                 length = today - start
                 retval.append((today,
                                "War ongoing, after %d days" % length.days))
@@ -168,7 +168,7 @@ def mars():
     '''
     retval = []
     first_ssw_year = cycle_1_start.year
-    today = ssw_map_utils.today_in_ssw()
+    today = ssw_utils.today_in_ssw()
     this_ssw_year = today.year
     for year in range(first_ssw_year, this_ssw_year + 1):
         for month, day in ssw_sector_map.mars_dates:
@@ -183,7 +183,7 @@ def love_boat():
     Returns a list of (date, event string) tuples
     '''
     retval = []
-    today = ssw_map_utils.today_in_ssw()
+    today = ssw_utils.today_in_ssw()
     this_ssw_year = today.year
     end_year = this_ssw_year
     if (today > today.replace(month=2,day=13)):
@@ -204,7 +204,7 @@ def planet_x():
     Returns a list of (date, event string) tuples
     '''
     retval = []
-    today = ssw_map_utils.today_in_ssw()
+    today = ssw_utils.today_in_ssw()
     this_ssw_year = today.year
     end_year = this_ssw_year
     if (today > today.replace(month=12,day=24)):

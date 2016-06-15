@@ -21,7 +21,7 @@ Script to find trade routes (and LuvSats) from an SSW sector map
 #       We exclude enemy sectors, but do we find all the best routes from what's left ?
 
 import ssw_sector_map2 as ssw_sector_map
-import ssw_map_utils, ssw_societies
+import ssw_map_utils, ssw_societies, ssw_utils
 import operator, sys, getopt, datetime
 
 version = 1.02
@@ -102,7 +102,7 @@ def print_best_ore_prices(p, ore_best_sectors, indent, society, buy, sell, unexp
                 order = -port.order
             print >>fout, "[GE:%+d OC:%+d]" % (good, order),
             if len(p.drones):
-                print >>fout, ssw_map_utils.drones_str(drones)
+                print >>fout, ssw_utils.drones_str(drones)
             else:
                 print >>fout
         else:
@@ -140,7 +140,7 @@ def print_routes(p, sources, destinations, society, trade_at_start, unexplored_s
             order -= port.order
             print >>fout, "[GE:%+d OC:%+d]" % (good, order),
             if len(p.drones):
-                print >>fout, ssw_map_utils.drones_str(route[2])
+                print >>fout, ssw_utils.drones_str(route[2])
             else:
                 print >>fout
         else:
@@ -623,7 +623,7 @@ def main(*arguments):
             if distance < ssw_sector_map.sectors_per_row:
                 print >>fout, "   %s" % (route),
                 if len(p.drones):
-                    print >>fout, ssw_map_utils.drones_str(drones)
+                    print >>fout, ssw_utils.drones_str(drones)
                 else:
                     print >>fout
 
@@ -686,7 +686,7 @@ def main(*arguments):
             print >>fout, "  %d of %d %s asteroids in %s" % (len(all_asteroids[ore]),
                                                              p.expected_asteroids()/len(all_asteroids.keys()),
                                                              ore,
-                                                             ssw_map_utils.sector_str(all_asteroids[ore])),
+                                                             ssw_utils.sector_str(all_asteroids[ore])),
             if (len(p.drones) > 0):
                 print >>fout, " %s" % ( drone_str_for_sectors(all_asteroids[ore],
                                                               drones_by_sector))
