@@ -13,8 +13,9 @@ This is a copy of ssw_sector_map, reworked to use BeautifulSoup.
 
 import operator, datetime, unittest, re
 from bs4 import BeautifulSoup
-import ssw_missing_links, ssw_societies
+import ssw_missing_links, ssw_societies, ssw_utils
 from ssw_trading_port import TradingPort
+import ssw_get_asteroids, ssw_get_planets, ssw_get_stores, ssw_get_trading_ports
 
 '''Set this to True to log debugging information'''
 debug = False
@@ -1292,6 +1293,60 @@ class SectorMapParser():
                     # TODO What should we do here ?
                     print "Telporter menu item %s (%d) not found in map" % (planet, sector)
 
+    # TODO Can these three methods be merged together ?
+    def enhance_map_with_planets(self, expected_planets):
+        '''
+        Adds any missing planets to the map.
+        '''
+        if len(self.planets) < len(expected_planets):
+            unknown_planets = [planet for planet in expected_planets if planet not in self.planets]
+            self.planets += unknown_planets
+            print "Added %d planet(s) - %s" % (len(unknown_planets),
+                                               str(unknown_planets))
+            for name, sector in unknown_planets:
+                if (sector not in self.unknown_sectors) and (sector not in self.forgotten_sectors):
+                    print "*** Added planet %s to known sector %d. Out-of-date planet list ?" % (name, sector)
+
+    def enhance_map_with_npc_stores(self, expected_npc_stores):
+        '''
+        Adds any missing NPC stores to the map.
+        '''
+        if len(self.npc_stores) < len(expected_npc_stores):
+            # TODO We end up with duplicates because of weird apostrophes in some names
+            unknown_npc_stores = [npc_store for npc_store in expected_npc_stores if npc_store not in self.npc_stores]
+            self.npc_stores += unknown_npc_stores
+            print "Added %d NPC store(s) - %s" % (len(unknown_npc_stores),
+                                                  str(unknown_npc_stores))
+            for name, sector in unknown_npc_stores:
+                if (sector not in self.unknown_sectors) and (sector not in self.forgotten_sectors):
+                    print "*** Added NPC store %s to known sector %d. Out-of-date NPC store list ?" % (name, sector)
+
+    def enhance_map_with_asteroids(self, expected_asteroids):
+        '''
+        Adds any missing asteroids to the map.
+        '''
+        if len(self.asteroids) < len(expected_asteroids):
+            unknown_asteroids = [asteroid for asteroid in expected_asteroids if asteroid not in self.asteroids]
+            self.asteroids += unknown_asteroids
+            print "Added %d asteroid(s) - %s" % (len(unknown_asteroids),
+                                                 str(unknown_asteroids))
+            for name, sector in unknown_asteroids:
+                if (sector not in self.unknown_sectors) and (sector not in self.forgotten_sectors):
+                    print "*** Added asteroid %s to known sector %d. Out-of-date asteroid list ?" % (name, sector)
+
+    def enhance_map_with_trading_ports(self, expected_trading_ports):
+        '''
+        Adds any missing trading ports to the map.
+        '''
+        if len(self.trading_ports) < len(expected_trading_ports):
+            unknown_trading_ports = [port for port in expected_trading_ports if not self.trading_port_in_sector(port.sector)]
+            self.trading_ports += unknown_trading_ports
+            print "Added %d trading port(s) - %s" % (len(unknown_trading_ports),
+                                                     '[' + ', '.join([port.name for port in unknown_trading_ports]) + ']')
+            for port in unknown_trading_ports:
+                if (port.sector not in self.unknown_sectors) and (port.sector not in self.forgotten_sectors):
+                    print "*** Added trading port %s to known sector %d. Out-of-date trading port list ?" % (port.name, port.sector)
+
     def enhance_map(self):
         '''
         Adds known info to a partially-populated map.
@@ -1300,28 +1355,36 @@ class SectorMapParser():
         Asteroids and trading ports move at reset.
         IPTs, jellyfish and luvsats move daily.
         '''
-        if len(self.planets) < len(self.expected_planets()):
-            unknown_planets = [planet for planet in self.expected_planets() if planet not in self.planets]
-            self.planets += unknown_planets
-            print "Added %d planet(s) - %s" % (len(unknown_planets),
-                                               str(unknown_planets))
+        self.enhance_map_with_planets(self.expected_planets())
 
         if len(self.black_holes) < len(expected_black_holes):
             unknown_black_holes = [black_hole for black_hole in expected_black_holes if black_hole not in self.black_holes]
             self.black_holes += unknown_black_holes
             print "Added %d black hole(s)" % len(unknown_black_holes)
 
-        if len(self.npc_stores) < len(self.expected_npc_stores()):
-            unknown_npc_stores = [npc_store for npc_store in self.expected_npc_stores() if npc_store not in self.npc_stores]
-            self.npc_stores += unknown_npc_stores
-            print "Added %d NPC store(s) - %s" % (len(unknown_npc_stores),
-                                                  str(unknown_npc_stores))
+        self.enhance_map_with_planets(self.expected_npc_stores())
 
         if len(self.missing_links) < len(self.expected_missing_links()):
             unknown_missing_links = [(sector,links) for sector,links in self.expected_missing_links().iteritems() if sector not in self.missing_links]
             for sector, links in unknown_missing_links:
                 self.missing_links[sector] = links
             print "Added %d missing link(s)" % len(unknown_missing_links)
+
+        # If it's today's map, we can also pull info from the databuddy
+        if (ssw_utils.today_in_ssw() - self.datetime) > datetime.timedelta(1):
+            return
+
+        p = ssw_get_planets.get_planets()
+        self.enhance_map_with_planets(p)
+
+        s = ssw_get_stores.get_npc_stores()
+        self.enhance_map_with_npc_stores(s)
+
+        a = ssw_get_asteroids.get_asteroids()
+        self.enhance_map_with_asteroids(a)
+
+        t = ssw_get_trading_ports.get_trading_ports()
+        self.enhance_map_with_trading_ports(t)
 
     def valid(self, quiet=False):
         '''

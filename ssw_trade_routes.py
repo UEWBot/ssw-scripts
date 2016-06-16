@@ -213,13 +213,8 @@ def import_asteroids_file(filename, p):
             break
         # Now parse the line itself
         ore, sectors = parse_asteroid_line(line)
-        # Append each one to the list in the map, unless it's already there
-        for sector in sectors:
-            if (ore, sector) not in p.asteroids:
-                if (sector not in p.unknown_sectors) and (sector not in p.forgotten_sectors):
-                    print "*** Adding %s asteroid to known sector %d. %s out-of-date ?" % (ore, sector, filename)
-                print >>fout, "Adding %s asteroid in sector %d to map" % (ore, sector)
-                p.asteroids.append((ore, sector))
+        # And add the asteroids into the map
+        p.enhance_map_with_asteroids([(ore, sector) for sector in sectors])
     ast_file.close()
 
 def total_distance(port_set, distances):
