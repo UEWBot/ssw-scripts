@@ -15,7 +15,6 @@ import sys, getopt
 version = 0.1
 
 # Defaults
-asteroids_filename = 'ssw_asteroids.txt'
 for_33ers = False
 temp_filename = '/tmp/cbrand_ssw_output.txt'
 options = ['--no-summary', '--cheapest-ore']
@@ -66,7 +65,6 @@ if for_33ers:
     # This one is easy - just call with the appropriate options
     p = ssw_trade_routes.main(*options_33)
 else:
-    options += ['--input', asteroids_filename]
     options += ['--output', temp_filename]
     p = ssw_trade_routes.main(*options)
 
