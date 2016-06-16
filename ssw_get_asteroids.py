@@ -15,9 +15,9 @@ ORE_RE = re.compile("(\w*) Ore")
 def parse_asteroids(data):
     """
     Parse the list of asteroids from the SSW server.
-    Returns a dict, keyed by ore, of arrays of sector numbers
+    Returns a list of (ore, sector) 2-tuples.
     """
-    asteroids = {}
+    asteroids = []
 
     d = dict(eval(data))
     for ore_str, sector_str in d["aaData"]:
@@ -25,15 +25,13 @@ def parse_asteroids(data):
         m = ORE_RE.search(ore_str)
         if m:
             ore = m.group(1)
-            if ore not in asteroids:
-                asteroids[ore] = []
-            asteroids[ore].append(sector)
+            asteroids.append((ore, sector))
     return asteroids
 
 def get_asteroids():
     """
     Download the asteroid data from the SSW server,
-    parse it, and return a dict, keyed by ore, of arrays of sector numbers
+    parse it, and return a list of (ore, sector) 2-tuples.
     """
     f = urllib.urlopen(asteroids_url)
     asteroids = f.read()
@@ -45,12 +43,13 @@ def main():
     """
     a = get_asteroids()
 
-    for ore in sorted(a.keys()):
+    d = ssw_utils.to_dict(a)
+    for ore in sorted(d.keys()):
         # Use the same format as in ssw_trade_routes
-        print "%d of %d %s asteroids in %s" % (len(a[ore]),
-                                               len(a[ore]),
+        print "%d of %d %s asteroids in %s" % (len(d[ore]),
+                                               len(d[ore]),
                                                ore,
-                                               ssw_utils.sector_str(a[ore]))
+                                               ssw_utils.sector_str(d[ore]))
 
 if __name__ == '__main__':
     main()
