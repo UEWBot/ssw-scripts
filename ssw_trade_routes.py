@@ -4,7 +4,7 @@
 Script to find trade routes (and LuvSats) from an SSW sector map
 '''
 
-# Copyright 2008, 2015 Squiffle
+# Copyright 2008, 2015-2016 Squiffle
 
 # TODO: Figure out shortest trade and mining routes as well as most profitable.
 # TODO: Add command-line options for max_trade_routes, max_mine_routes, min_buy_routes and routes_to_print.
@@ -273,7 +273,7 @@ def usage(progname, map_file):
     print "  -x|--links - print the missing links"
     print "  -d|--drones {a|e|i|o|t} - avoid drones not belonging to the specified society"
     print "  -r|--ore - list all the places to get the specified ore"
-    print "  -i|--input - read extra asteroid info from the specified file"
+    print "  -i|--input - read extra asteroid info from the specified file (pointless unless they've moved since the map was saved)"
     print "  -o|--output - write output to the specified file"
     print "  -g|--groceries - report the best route to buy all the specified ores"
     print "                   ore_list is comma-separated, with no whitespace"
