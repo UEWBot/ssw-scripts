@@ -1689,7 +1689,7 @@ class SectorMapParser():
                 sector,
                 distance,
                 drones + drones_en_route([to_sector],
-                self.drones))
+                                         self.drones))
  
     def nearest_ipt(self,
                     to_sector,
