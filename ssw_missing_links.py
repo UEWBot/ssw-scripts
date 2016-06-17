@@ -5,7 +5,7 @@ Missing links in various Secret Society Wars maps.
 Just takes these huge lists out of ssw_sector_map.py.
 '''
 
-# Copyright 2010, 2015 Squiffle
+# Copyright 2010, 2015-2016 Squiffle
 
 cycle_13_war_links = {2: [35], 4: [5, 37], 5: [4], 6: [39], 7: [40], 8: [41], 9: [42],
                       11: [12, 44], 12: [11], 13: [46], 14: [15], 15: [14], 17: [18],

@@ -4,7 +4,7 @@
 Utilities to deal with SSW societies and alignments
 '''
 
-# Copyright 2008 Squiffle
+# Copyright 2008, 2016 Squiffle
 
 '''all the initials'''
 initials = "AEIOT"

@@ -4,7 +4,7 @@
 Script to find a route through an SSW sector map
 '''
 
-# Copyright 2009, 2015 Squiffle
+# Copyright 2009, 2015-2016 Squiffle
 
 import ssw_sector_map2 as ssw_sector_map
 import ssw_map_utils, ssw_societies, ssw_utils
