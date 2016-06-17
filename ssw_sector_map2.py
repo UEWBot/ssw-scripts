@@ -424,8 +424,6 @@ def expected_npc_stores(map_datetime):
         (leroy_tongs_datetime, ('Leroy Tong`s Trancendental Soul Food', 923)),
         (clingons_datetime, ('Clingon`s Around Yeranus', 30)),
         (gobbles_datetime, ('Gobble`s Chez Le` Turkle', 719))]
-    leroy_tongs = ('Leroy Tong`s Trancendental Soul Food', 923)
-    clingons = ('Clingon`s Around Yeranus', 30)
     # Major rework when SSW was revived
     v2_stores = [('Captain Jork`s Last Chance Saloon', 1075),
                  ('Clingon`s Around Yeranus', 353),
@@ -837,35 +835,6 @@ def accessible_sectors(from_sector,
         retval = new_retval
     return retval
 
-def fly_distance(from_sector,
-                 to_sector,
-                 can_move_diagonally,
-                 missing_links={},
-                 avoiding_sectors=[],
-                 drones=[],
-                 max=max_route_length):
-    '''
-    Figure out how many turns it takes to fly from one sector to another
-    Returns a tuple with (distance,list of drones en route) if it finds a route
-    Returns (None,[]) if there is no route
-    '''
-    # With a simple map, there's no need to actually find a route
-    if (len(missing_links) == 0) and (len(avoiding_sectors) == 0) and (len(drones) == 0):
-        temp = direct_distance(from_sector, to_sector)
-        if (temp <= max):
-            return (temp,[])
-        else:
-            return (None,[])
-    temp = a_route(from_sector,
-                   to_sector,
-                   can_move_diagonally,
-                   missing_links,
-                   avoiding_sectors,
-                   max)
-    if temp != None:
-        return (len(temp), drones_en_route(temp, drones))
-    # If we get here, it's not possible to fly between those sectors
-    return (None,[])
 
 HOSTILITY_RE = re.compile('<B>PvP Hostility Level:</B> ([-\d]*) \(PvP:(\d*) - PsP:(\d*)\)')
 POWERUPS_RE = re.compile('<B>Powerup Distribution:</B> (\d*)%')
@@ -993,12 +962,6 @@ class SectorMapParser():
         Was the war ongoing at the time of this map ?
         '''
         return war_ongoing(self.datetime)
-
-    def war_ended(self):
-        '''
-        Had the war ended at the time of this map ?
-        '''
-        return not self.war_ongoing()
 
     def parse_prices(self, text):
         """Parse a price list into a dict"""
@@ -1566,7 +1529,7 @@ class SectorMapParser():
         from the starting sector.
         '''
         retval = {}
-        # TODO This version includes only moving distances
+        # Note that we only include flying distances, not via IPT or planets
         for d in range(0, max_distance+1):
             per_sector = {}
             for s in all_sectors:
@@ -1588,48 +1551,6 @@ class SectorMapParser():
                         per_sector[s].update(retval[1][s1])
             retval[d] = per_sector
         return retval
-        # TODO The version below includes travel by IPT or teleport
-        # I don't think we actually need that, and it takes longer to populate
-        for d in range(0, max_distance+1):
-            per_sector = {}
-            for s in all_sectors:
-                per_sector[s] = set()
-                if d == 0:
-                    per_sector[s].add(s)
-                    planet = (self.planet_in_sector(s) != None)
-                    # If there's an IPT, it's also 0 distance to use it
-                    ipt = self.ipt_in_sector(s)
-                    if ipt:
-                        per_sector[s].add(self.sector_of_planet(ipt))
-                        planet = True
-                    # If it's 0 distance to any planet, it's 0 distance to all
-                    if planet:
-                        for p,s1 in self.planets:
-                            per_sector[s].add(s1)
-                else:
-                    # For every sector we can get to with one move (by moving
-                    # from any sector we can get to for free from this sector),
-                    # add all the sectors we can get to from there with one less move
-                    for s1 in retval[0][s]:
-                        for s2 in accessible_sectors(s1,
-                                                     self.can_move_diagonally(),
-                                                     self.missing_links,
-                                                     max=1):
-                            for s3 in retval[d-1][s2]:
-                                per_sector[s].add(s3)
-            retval[d] = per_sector
-        return retval
-
-    def sectors_within_x_moves(self, sector, x):
-        '''
-        Returns the set of sectors that can be reached from sector within x moves
-        without using IPTs or teleporting.
-        '''
-        direct = accessible_sectors(sector,
-                                    self.can_move_diagonally(),
-                                    self.missing_links,
-                                    max=x)
-        return direct
 
     def nearest(self,
                 to_sector,

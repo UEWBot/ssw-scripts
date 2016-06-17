@@ -246,16 +246,6 @@ def places_to_sell_ore(in_map, ore, society=None):
                   key = operator.itemgetter(0),
                   reverse=True)
 
-def best_places_to_sell_ore(in_map, ore, society=None):
-    '''
-    Returns a tuple of (highest price, list of (sector, port alignment) tuples) or None
-    Includes no sectors with enemy drones if society is specified.
-    '''
-    retval = places_to_sell_ore(in_map, ore, society)
-    if len(retval) > 0:
-        return retval[0]
-    return None
-
 def places_to_sell_ores(in_map, society=None):
     '''
     Returns a dictionary of list of tuples of (price, list of (sector, port alignment) tuples),
@@ -265,17 +255,6 @@ def places_to_sell_ores(in_map, society=None):
     ore_best_sell = {}
     for ore in in_map.ores_bought.iterkeys():
         ore_best_sell[ore] = places_to_sell_ore(in_map, ore, society)
-    return ore_best_sell
-
-def best_places_to_sell_ores(in_map, society=None):
-    '''
-    Returns a dictionary of tuples of (highest price, list of (sector, port alignment) tuples),
-    keyed by ore name
-    Includes no sectors with enemy drones if society is specified.
-    '''
-    ore_best_sell = {}
-    for ore in in_map.ores_bought.iterkeys():
-        ore_best_sell[ore] = best_places_to_sell_ore(in_map, ore, society)
     return ore_best_sell
 
 def places_to_buy_ore(in_map, ore, society=None):
@@ -289,16 +268,6 @@ def places_to_buy_ore(in_map, ore, society=None):
                                                             society))
     return sorted(ore_sold_dict.iteritems(), key = operator.itemgetter(0))
 
-def best_places_to_buy_ore(in_map, ore, society=None):
-    '''
-    Returns a tuple of (cheapest price, list of (sector, port alignment) tuples) or None
-    Includes no sectors with enemy drones if society is specified.
-    '''
-    retval = places_to_buy_ore(in_map, ore, society)
-    if len(retval) > 0:
-        return retval[0]
-    return None
-
 def places_to_buy_ores(in_map, society=None):
     '''
     Returns a dictionary of lists of tuples of (price, list of (sector, port alignment) tuples),
@@ -308,17 +277,6 @@ def places_to_buy_ores(in_map, society=None):
     ore_best_buy = {}
     for ore in in_map.ores_sold.iterkeys():
         ore_best_buy[ore] = places_to_buy_ore(in_map, ore, society)
-    return ore_best_buy
-
-def best_places_to_buy_ores(in_map, society=None):
-    '''
-    Returns a dictionary of tuples of (cheapest price, list of (sector, port alignment) tuples),
-    keyed by ore name
-    Includes no sectors with enemy drones if society is specified.
-    '''
-    ore_best_buy = {}
-    for ore in in_map.ores_sold.iterkeys():
-        ore_best_buy[ore] = best_places_to_buy_ore(in_map, ore, society)
     return ore_best_buy
 
 # TODO Add unit tests
