@@ -1320,8 +1320,10 @@ class SectorMapParser():
         '''
         Adds any missing NPC stores to the map.
         '''
+        # TODO We end up with duplicates because of weird apostrophes in some names
+        # For now, leave the list alone. Nothing currently uses it anyway
+        return
         if len(self.npc_stores) < len(expected_npc_stores):
-            # TODO We end up with duplicates because of weird apostrophes in some names
             unknown_npc_stores = [npc_store for npc_store in expected_npc_stores if npc_store not in self.npc_stores]
             self.npc_stores += unknown_npc_stores
             print "Added %d NPC store(s) - %s" % (len(unknown_npc_stores),
