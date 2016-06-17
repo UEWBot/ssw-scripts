@@ -1196,6 +1196,15 @@ class SectorMapParser():
         ''' Returns True if there is a luvsat in the sector, False otherwise'''
         return sector in self.luvsats
 
+    def trading_port_in_sector(self, in_sector):
+        '''
+        Returns the trading port (if any) in the specified sector
+        '''
+        for port in self.trading_ports:
+            if port.sector == in_sector:
+                return port
+        return None
+
     def sector_of_planet(self, name):
         '''
         Returns the sector containing the specified planet, or None.
@@ -1619,15 +1628,6 @@ class SectorMapParser():
                                     self.missing_links,
                                     max=x)
         return direct
-
-    def trading_port_in_sector(self, in_sector):
-        '''
-        Returns the trading port (if any) in the specified sector
-        '''
-        for port in self.trading_ports:
-            if port.sector == in_sector:
-                return port
-        return None
 
     def nearest(self,
                 to_sector,
