@@ -68,6 +68,7 @@ class ToDictNormal(unittest.TestCase):
         result = to_dict([(1, 'a'), (1, 'b')])
         self.assertEqual(result, {1: ['a', 'b']})
 
+#TODO There is no function "enemy_drones_en_route()"...
 class EnemyDrones(unittest.TestCase):
     def testNoMatch(self):
         '''enemy_drones_en_route should return the same list if there are no matches'''
