@@ -2,7 +2,7 @@
 
 # Script to figure out how things move over time
 
-# Copyright 2008, 20015 Squiffle
+# Copyright 2008, 2015-2016 Squiffle
 
 import ssw_sector_map2 as ssw_sector_map
 import ssw_utils
@@ -52,15 +52,15 @@ def median1(seq):
     '''
     Alternative function to calculate the median of the numbers in a list
     '''
-   "Return the median of the list of numbers."
-   # Sort the list and take the middle element.
-   n = len(seq)
-   copy = seq[:] # So that "numbers" keeps its original order
-   copy.sort()
-   if n & 1:         # There is an odd number of elements
-      return copy[n // 2]
-   else:
-      return (copy[n // 2 - 1] + copy[n // 2]) / 2
+    "Return the median of the list of numbers."
+    # Sort the list and take the middle element.
+    n = len(seq)
+    copy = seq[:] # So that "numbers" keeps its original order
+    copy.sort()
+    if n & 1:         # There is an odd number of elements
+        return copy[n // 2]
+    else:
+        return (copy[n // 2 - 1] + copy[n // 2]) / 2
 
 def median(seq):
     '''
