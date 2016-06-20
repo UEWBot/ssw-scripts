@@ -86,7 +86,7 @@ def print_best_ore_prices(p, ore_best_sectors, indent, society, buy, sell, unexp
     # TODO print the alignment info that's in ore_best_sectors
     best_sectors = [sector for sector, alignment in ore_best_sectors]
     routes = ssw_map_utils.best_routes(p, best_sectors, None, society, unexplored_sector_society)
-    for dis, route, drones, src, dest in routes:
+    for dis, route, drones, src, dest, poss in routes:
         print >>fout, "%s%s" % (indent, route),
         # Only count routes that can be taken
         if dis < ssw_sector_map.sectors_per_row:
@@ -102,7 +102,7 @@ def print_best_ore_prices(p, ore_best_sectors, indent, society, buy, sell, unexp
                 order = -port.order
             print >>fout, "[GE:%+d OC:%+d]" % (good, order),
             if len(p.drones):
-                print >>fout, ssw_utils.drones_str(drones)
+                print >>fout, ssw_utils.drones_str(drones, poss)
             else:
                 print >>fout
         else:
@@ -140,7 +140,7 @@ def print_routes(p, sources, destinations, society, trade_at_start, unexplored_s
             order -= port.order
             print >>fout, "[GE:%+d OC:%+d]" % (good, order),
             if len(p.drones):
-                print >>fout, ssw_utils.drones_str(route[2])
+                print >>fout, ssw_utils.drones_str(route[2], route[5])
             else:
                 print >>fout
         else:
@@ -148,7 +148,14 @@ def print_routes(p, sources, destinations, society, trade_at_start, unexplored_s
     print >>fout
     return routes_printed
 
-def print_ore_buy_routes(p, ore, price_list, indent, min_buy_routes, society, unexplored_sector_society=None, header_indent=''):
+def print_ore_buy_routes(p,
+                         ore,
+                         price_list,
+                         indent,
+                         min_buy_routes,
+                         society,
+                         unexplored_sector_society=None,
+                         header_indent=''):
     '''
     Prints the list of routes to buy the ore, with an optional header line
     '''
@@ -158,7 +165,13 @@ def print_ore_buy_routes(p, ore, price_list, indent, min_buy_routes, society, un
             if (buy_routes_printed >= min_buy_routes):
                 break
             print >>fout, "%sBuy %s for %d:" % (header_indent, ore, price)
-            buy_routes_printed += print_best_ore_prices(p, sectors, indent, society, True, False, unexplored_sector_society)
+            buy_routes_printed += print_best_ore_prices(p,
+                                                        sectors,
+                                                        indent,
+                                                        society,
+                                                        True,
+                                                        False,
+                                                        unexplored_sector_society)
     else:
         print >>fout, "%sNowhere to buy %s" % (header_indent, ore)
 
@@ -569,7 +582,13 @@ def main(*arguments):
             if (ore in asteroids) and (len(asteroids[ore]) > 0) and (len(sell_sectors) > 0) and (mining_routes < max_mining_routes):
                 print >>fout, "  Mine %s in %s, sell for %d in %s" % (ore, str(asteroids[ore]),sell_price,ports_str(sell_sectors))
                 sell_sects = [sector for sector, alignment in sell_sectors]
-                if 0 < print_routes(p, asteroids[ore], sell_sects, society, False, unexplored_sector_society, routes_to_print):
+                if 0 < print_routes(p,
+                                    asteroids[ore],
+                                    sell_sects,
+                                    society,
+                                    False,
+                                    unexplored_sector_society,
+                                    routes_to_print):
                     mining_routes += 1
         if mining_routes < max_mining_routes:
             if mining_routes == 0:
@@ -581,14 +600,27 @@ def main(*arguments):
         print >>fout
         print >>fout, "Cheapest places to buy ores"
         for ore,price_list in sorted(ore_buy.iteritems(), key=operator.itemgetter(0)):
-            print_ore_buy_routes(p, ore, price_list, "    ", min_buy_routes, society, unexplored_sector_society, '  ')
+            print_ore_buy_routes(p,
+                                 ore,
+                                 price_list,
+                                 "    ",
+                                 min_buy_routes,
+                                 society,
+                                 unexplored_sector_society,
+                                 '  ')
             print >>fout
     
     if print_shields and not print_ore_buying_routes:
         shields = ssw_map_utils.shield_ore
         print >>fout
         if shields in ore_buy:
-            print_ore_buy_routes(p, shields, ore_buy[shields], '  ', min_buy_routes, society, unexplored_sector_society)
+            print_ore_buy_routes(p,
+                                 shields,
+                                 ore_buy[shields],
+                                 '  ',
+                                 min_buy_routes,
+                                 society,
+                                 unexplored_sector_society)
     
     if ore_of_interest != None:
         print >>fout
@@ -601,11 +633,21 @@ def main(*arguments):
         for price, sector_list in ore_buy[ore_of_interest]:
             if routes_printed >= routes_to_print:
                 break
-            routes_printed += print_best_ore_prices(p, sector_list, "  Buy for " + str(price) + " - ", society, True, False, unexplored_sector_society)
+            routes_printed += print_best_ore_prices(p,
+                                                    sector_list,
+                                                    "  Buy for " + str(price) + " - ",
+                                                    society,
+                                                    True,
+                                                    False,
+                                                    unexplored_sector_society)
     
         # Could mine it from asteroids
         try:
-            routes = ssw_map_utils.best_routes(p, asteroids[ore_of_interest], None, society, unexplored_sector_society)
+            routes = ssw_map_utils.best_routes(p,
+                                               asteroids[ore_of_interest],
+                                               None,
+                                               society,
+                                               unexplored_sector_society)
         except KeyError:
             routes = ()
         if len(routes) > 0:
@@ -613,12 +655,12 @@ def main(*arguments):
         else:
             print >>fout, "  Nowhere to mine it"
         # Note that we don't need to limit these because there can only be one per asteroid
-        for distance, route, drones, src, dest in routes:
+        for distance, route, drones, src, dest, poss in routes:
             # Don't print if no route
             if distance < ssw_sector_map.sectors_per_row:
                 print >>fout, "   %s" % (route),
                 if len(p.drones):
-                    print >>fout, ssw_utils.drones_str(drones)
+                    print >>fout, ssw_utils.drones_str(drones, poss)
                 else:
                     print >>fout
 
@@ -630,7 +672,13 @@ def main(*arguments):
         for price, sector_list in ore_sell[ore_of_interest]:
             if routes_printed >= routes_to_print:
                 break
-            routes_printed += print_best_ore_prices(p, sector_list, "  Sell for " + str(price) + " - ", society, False, True, unexplored_sector_society)
+            routes_printed += print_best_ore_prices(p,
+                                                    sector_list,
+                                                    "  Sell for " + str(price) + " - ",
+                                                    society,
+                                                    False,
+                                                    True,
+                                                    unexplored_sector_society)
     
         # TODO: List some profitable trade routes, too ? (max_trade_routes ?)
         pass
@@ -651,7 +699,11 @@ def main(*arguments):
             ports[ore] = sector_list
             ores_str[ore] = '%s for %d' % (ore, price)
             for sector in sector_list:
-                (distance, route, drones, src, dest) = ssw_map_utils.best_route_to_sector(p, sector, None, society, unexplored_sector_society)
+                (distance, route, drones, src, dest, poss) = ssw_map_utils.best_route_to_sector(p,
+                                                                                                sector,
+                                                                                                None,
+                                                                                                society,
+                                                                                                unexplored_sector_society)
                 distances[sector] = distance
                 route_by_port[sector] = route
         # Now check whether we can save time by buying two ores at once
@@ -705,7 +757,8 @@ def main(*arguments):
                 drones = " ['"+ drones_by_sector[sector] + "']"
             else:
                 drones = ""
-            planets = [planet for (planet, loc) in p.planets if loc in ssw_sector_map.adjacent_sectors(sector, p.can_move_diagonally())]
+            planets = [planet for (planet, loc) in p.planets if loc in ssw_sector_map.adjacent_sectors(sector,
+                                                                                                       p.can_move_diagonally())]
             planets_str = planet_str(planets)
             print >>fout, "  %s asteroid in sector %d next to %s%s" % (ore, sector, planets_str, drones)
         # Only display asteroid ownership if we know of at least one droned sector
@@ -727,7 +780,11 @@ def main(*arguments):
     if print_luvsats:
         print >>fout
         print >>fout, "LuvSats"
-        for dis,route,drones,src,dest in ssw_map_utils.best_routes(p, p.luvsats, None, society, unexplored_sector_society):
+        for dis,route,drones,src,dest,poss in ssw_map_utils.best_routes(p,
+                                                                        p.luvsats,
+                                                                        None,
+                                                                        society,
+                                                                        unexplored_sector_society):
             print >>fout, " %s" % (route)
     
     if print_your_drones:

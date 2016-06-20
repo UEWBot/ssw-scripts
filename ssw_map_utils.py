@@ -42,17 +42,18 @@ def best_route_to_sector(in_map,
                          unexplored_sector_society=None):
     '''
     Find the best route to one sector
-    Returns a (distance, route string, drone list, source, destination) tuple
+    Returns a (distance, route string, drone list, source, destination, possible drones) tuple
+    where possible drones is True if the route traverses sectors that may have drones.
     WARNING: from_sector comes after to_sectors. Take care when calling.
     '''
     src = from_sector
     if src == None:
         src = to_sector
-    dist, route, drones = in_map.shortest_route(src,
-                                                to_sector,
-                                                society,
-                                                unexplored_sector_society)
-    return (dist, route, drones, from_sector, to_sector)
+    dist, route, drones, poss = in_map.shortest_route(src,
+                                                      to_sector,
+                                                      society,
+                                                      unexplored_sector_society)
+    return (dist, route, drones, from_sector, to_sector, poss)
 
 def best_routes(in_map,
                 to_sectors,
@@ -62,7 +63,7 @@ def best_routes(in_map,
                 sort=True):
     '''
     Find the best routes to the sectors in the list
-    Returns a (sorted by distance) list of (distance,route string,drone list,from,to) tuples
+    Returns a (sorted by distance) list of (distance,route string,drone list,from,to, possible drones) tuples
     WARNING: from_sector comes after to_sectors. Take care when calling.
     '''
     result = []

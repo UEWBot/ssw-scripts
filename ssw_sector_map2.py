@@ -1522,6 +1522,16 @@ class SectorMapParser():
             retval += self.unknown_sectors
         return retval
 
+    def route_traverses_unexplored_sectors(self, route):
+        '''
+        Will we pass through unexplored or forgotten sectors on a route ?
+        Return True or False.
+        '''
+        for sector in route:
+            if (sector in self.unknown_sectors) or (sector in self.forgotten_sectors):
+                return True
+        return False
+
     def distances_array(self, max_distance):
         '''
         Return a dict, indexed by distance (up to max_distance) of dicts
@@ -1560,7 +1570,9 @@ class SectorMapParser():
                 unexplored_sector_society=None):
         '''
         Internal - Where's the nearest planet/IPT to a sector ?
-        Returns a tuple of (name, sector, distance, drones en route)
+        Returns a tuple of (name, sector, distance, drones en route, possible drones)
+        where "possible drones" is True if the route traverses sectors where we don't know
+        whether drones are present or not.
         This is really just the code common to nearest_planet() and nearest_ipt()
         Check for it returning None for the sector to see whether it found one.
         Note that we assume that direction doesn't matter
@@ -1588,8 +1600,8 @@ class SectorMapParser():
                         if route == None:
                             continue
                         drones = drones_en_route(route, self.drones)
-                    return (name, sector, d, drones)
-        return ("", None, max_length, [])
+                    return (name, sector, d, drones, self.route_traverses_unexplored_sectors(route))
+        return ("", None, max_length, [], False)
 
     def nearest_planet(self,
                        to_sector,
@@ -1598,13 +1610,15 @@ class SectorMapParser():
                        unexplored_sector_society=None):
         '''
         Where's the nearest planet to a sector ?
-        Returns a tuple of (planet name, sector, distance, drones en route)
+        Returns a tuple of (planet name, sector, distance, drones en route, possible drones)
+        where "possible drones" is True if the route traverses sectors where we don't know
+        whether drones are present or not.
         '''
-        (name, sector, distance, drones) = self.nearest(to_sector,
-                                                        self.planets,
-                                                        max_length,
-                                                        for_society,
-                                                        unexplored_sector_society)
+        (name, sector, distance, drones, possible) = self.nearest(to_sector,
+                                                                  self.planets,
+                                                                  max_length,
+                                                                  for_society,
+                                                                  unexplored_sector_society)
         # For nearest planet, we want to go from the planet to the sector,
         # but "nearest" does the opposite, so we need to allow for drones
         # at the sector of interest, too
@@ -1612,7 +1626,8 @@ class SectorMapParser():
                 sector,
                 distance,
                 drones + drones_en_route([to_sector],
-                                         self.drones))
+                                         self.drones),
+                possible or self.route_traverses_unexplored_sectors([to_sector]))
  
     def nearest_ipt(self,
                     to_sector,
@@ -1621,7 +1636,9 @@ class SectorMapParser():
                     unexplored_sector_society=None):
         '''
         Where's the nearest IPT to a sector ?
-        Returns a tuple of (IPT destination, sector, distance, drones en route)
+        Returns a tuple of (IPT destination, sector, distance, drones en route, possible drones)
+        where "possible drones" is True if the route traverses sectors where we don't know
+        whether drones are present or not.
         '''
         temp = self.nearest(to_sector,
                             self.ipts,
@@ -1637,14 +1654,22 @@ class SectorMapParser():
                               unexplored_sector_society=None):
         '''
         Where's the nearest planet or IPT to a sector ?
-        Returns a tuple of (IPT dest or planet name, sector, distance, drones en route)
+        Returns a tuple of (IPT dest or planet name, sector, distance, drones en route, possible drones)
+        where "possible drones" is True if the route traverses sectors where we don't know
+        whether drones are present or not.
         '''
-        (ipt_dest, ipt_sector, ipt_dist, ipt_drones) = self.nearest_ipt(to_sector, max_length, for_society, unexplored_sector_society)
-        (planet_name, planet_sector, planet_dist, planet_drones) = self.nearest_planet(to_sector, max_length, for_society, unexplored_sector_society)
+        (ipt_dest, ipt_sector, ipt_dist, ipt_drones, ipt_poss) = self.nearest_ipt(to_sector,
+                                                                                  max_length,
+                                                                                  for_society,
+                                                                                  unexplored_sector_society)
+        (planet_name, planet_sector, planet_dist, planet_drones, planet_poss) = self.nearest_planet(to_sector,
+                                                                                                    max_length,
+                                                                                                    for_society,
+                                                                                                    unexplored_sector_society)
         if ipt_dist < planet_dist:
-            return (ipt_dest, ipt_sector, ipt_dist, ipt_drones)
+            return (ipt_dest, ipt_sector, ipt_dist, ipt_drones, ipt_poss)
         else:
-            return (planet_name, planet_sector, planet_dist, planet_drones)
+            return (planet_name, planet_sector, planet_dist, planet_drones, ipt_drones)
 
     def shortest_distance(self,
                           from_sector,
@@ -1655,7 +1680,9 @@ class SectorMapParser():
         '''
         How long to get between the two sectors by the shortest route ?
         Returns a tuple with (the distance, None or a tuple of via sectors,
-        list of drones en route)
+        list of drones en route, possible drones)
+        where "possible drones" is True if the route traverses sectors where we don't know
+        whether drones are present or not.
         Distance will be None if there's no route between the two
         '''
         enemy_drones = self.enemy_drones(for_society,
@@ -1666,24 +1693,33 @@ class SectorMapParser():
             if (from_sector in enemy_drones) or (to_sector in enemy_drones):
                 return (None, None, None)
         # Could go via a planet
-        (dest_name, dest_sector, dest_dist, dest_drones) = self.nearest_planet(to_sector, max_length, for_society, unexplored_sector_society)
+        (dest_name, dest_sector, dest_dist, dest_drones, dest_poss) = self.nearest_planet(to_sector,
+                                                                                          max_length,
+                                                                                          for_society,
+                                                                                          unexplored_sector_society)
         # If we can't get to the destination from a planet,
         # there's no point looking for a route from the source to a planet or IPT
         if (dest_sector == None):
-            (via_dest, via_sector, via_dist, via_drones) = ('',
-                                                            None,
-                                                            sectors_per_row,
-                                                            [])
+            (via_dest, via_sector, via_dist, via_drones, via_poss) = ('',
+                                                                      None,
+                                                                      sectors_per_row,
+                                                                      [],
+                                                                      False)
         else:
-            (via_dest, via_sector, via_dist, via_drones) = self.nearest_planet_or_ipt(from_sector, max_length, for_society, unexplored_sector_society)
+            (via_dest, via_sector, via_dist, via_drones, via_poss) = self.nearest_planet_or_ipt(from_sector,
+                                                                                                max_length,
+                                                                                                for_society,
+                                                                                                unexplored_sector_society)
         # Flying distance can't be less than direct distance
         if (via_dist + dest_dist) < direct_distance(from_sector, to_sector):
             return (via_dist + dest_dist,
                     (via_sector, dest_sector),
-                    via_drones + dest_drones)
+                    via_drones + dest_drones,
+                    via_poss or dest_poss)
         # or, could just fly between the two
         fly_dist = None
         fly_drones = []
+        fly_poss = False
         for d in range(0, self.max_distance+1):
             #print "shortest_distance(%d,%d) - checking distance %d" % (from_sector, to_sector, d)
             if to_sector in self.distances()[d][from_sector]:
@@ -1704,18 +1740,20 @@ class SectorMapParser():
                     if route == None:
                         continue
                     fly_drones = drones_en_route(route, self.drones)
+                    fly_poss = self.route_traverses_unexplored_sectors(route)
                 break
         if (dest_sector == None) or (via_sector == None):
             # There's no route between the two via a planet
             # fly_dist is either None or the quickest route
-            return (fly_dist, None, fly_drones)
+            return (fly_dist, None, fly_drones, fly_poss)
         if (fly_dist == None) or ((via_dist + dest_dist) < fly_dist):
             # Going via a planet is quickest (or the only possible way)
             return (via_dist + dest_dist,
                     (via_sector, dest_sector),
-                    via_drones + dest_drones)
+                    via_drones + dest_drones,
+                    via_poss or dest_poss)
         # Going direct is quickest
-        return (fly_dist, None, fly_drones)
+        return (fly_dist, None, fly_drones, fly_poss)
 
     def shortest_route(self,
                        from_sector,
@@ -1745,25 +1783,35 @@ class SectorMapParser():
             if (from_sector in enemy_drones) or (to_sector in enemy_drones):
                 return (sectors_per_row, fail_str, [])
 
-        (start_planet, start_sector, start_dist, start_drones) = self.nearest_planet(from_sector, max_length, for_society, unexplored_sector_society)
+        (start_planet, start_sector, start_dist, start_drones, start_poss) = self.nearest_planet(from_sector,
+                                                                                                 max_length,
+                                                                                                 for_society,
+                                                                                                 unexplored_sector_society)
         # If we can't get to from_sector from a planet,
         # there's no point looking for the rest of the route
         if (start_sector == None):
-            (end_name, end_sector, end_dist, end_drones) = ('', None, sectors_per_row, [])
+            (end_name, end_sector, end_dist, end_drones, end_poss) = ('', None, sectors_per_row, [], False)
         else:
-            (end_name, end_sector, end_dist, end_drones) = self.nearest_planet_or_ipt(to_sector, max_length, for_society, unexplored_sector_society)
+            (end_name, end_sector, end_dist, end_drones, end_poss) = self.nearest_planet_or_ipt(to_sector,
+                                                                                                max_length,
+                                                                                                for_society,
+                                                                                                unexplored_sector_society)
         # Similarly, if we can't get back from to_sector,
         # there's no point looking for a route to to_sector
         if (end_sector == None):
-           (dist, route, drones) = (None, [], [])
+           (dist, route, drones, poss) = (None, [], [], False)
         else:
-           (dist, route, drones) = self.shortest_distance(from_sector, to_sector, for_society, unexplored_sector_society, max_length)
+           (dist, route, drones, poss) = self.shortest_distance(from_sector,
+                                                                to_sector,
+                                                                for_society,
+                                                                unexplored_sector_society,
+                                                                max_length)
         if dist == None:
-            return (sectors_per_row, fail_str, [])
+            return (sectors_per_row, fail_str, [], False)
         if start_sector == None:
-            return (sectors_per_row, "No route to %d%s" % (to_sector, soc_str), [])
+            return (sectors_per_row, "No route to %d%s" % (to_sector, soc_str), [], False)
         if end_sector == None:
-            return (sectors_per_row, "No route out of %d%s" % (from_sector, soc_str), [])
+            return (sectors_per_row, "No route out of %d%s" % (from_sector, soc_str), [], False)
         if route:
             planet_name = [name for (name, sector) in self.planets if sector == route[1]]
             route_str = "via %d and %s (%d)" % (route[0], planet_name[0], route[1])
@@ -1783,7 +1831,8 @@ class SectorMapParser():
                                                             from_sector,
                                                             end_sector,
                                                             end_name),
-                    start_drones + drones + end_drones)
+                    start_drones + drones + end_drones,
+                    start_poss or poss or end_poss)
         return (moves,
                 "%d %s - %s (%d), to %d, %s to %d, to %d (%s)" % (moves,
                                                                   move_str,
@@ -1794,7 +1843,8 @@ class SectorMapParser():
                                                                   to_sector,
                                                                   end_sector,
                                                                   end_name),
-                start_drones + drones + end_drones)
+                start_drones + drones + end_drones,
+                start_poss or poss or end_poss)
 
 # TODO Add lots more unit tests
 

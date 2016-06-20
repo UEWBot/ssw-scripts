@@ -25,13 +25,17 @@ def to_dict(a):
         retval[x].append(y)
     return retval
 
-def drones_str(drones):
+def drones_str(drones, possible_drones):
     '''
     Converts the list of drones en route to a string of societies.
+    Possible drones is a boolean indicating whether to add "plus unexplored sectors".
     '''
+    end = 'drones'
+    if possible_drones:
+        end += ', plus unexplored sectors'
     if len(drones):
-        return '[' + ', '.join(set(drones)) + ' drones]'
-    return '[no drones]'
+        return '[' + ', '.join(set(drones)) + ' %s]' % end
+    return '[no %s]' % end
 
 def sector_str(sectors):
     '''

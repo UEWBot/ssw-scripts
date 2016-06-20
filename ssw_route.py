@@ -113,20 +113,22 @@ def main(*arguments):
         total_distance = 0
         overall_route = []
         drones = []
+        possible_drones = False
         for to_sector in sectors_to_visit:
             #print "Finding route from %d to %d" % (from_sector, to_sector)
-            (distance, route_str, drone_list) = p.shortest_route(from_sector,
-                                                                 to_sector,
-                                                                 society,
-                                                                 unexplored_sector_society)
+            (distance, route_str, drone_list, poss) = p.shortest_route(from_sector,
+                                                                       to_sector,
+                                                                       society,
+                                                                       unexplored_sector_society)
             total_distance += distance
             overall_route.append(route_str)
             drones += drone_list
             from_sector = to_sector
+            possible_drones = possible_drones or poss
         print "Total distance is %d" % total_distance
         for route in overall_route:
             print route,
-        print ssw_utils.drones_str(drones)
+        print ssw_utils.drones_str(drones, possible_drones)
 
     if dump_missing_links:
         var_str = "cycle_%d_links = " % p.cycle()
