@@ -1392,6 +1392,9 @@ class SectorMapParser():
         a = ssw_get_asteroids.get_asteroids()
         self.enhance_map_with_asteroids(a)
 
+        # TODO the prices here will reflect what you're currently wearing,
+        # while those from the map will reflect what you were wearing at the time
+        # it was captured. We should probably check for disparities and address them.
         t = ssw_get_trading_ports.get_trading_ports()
         self.enhance_map_with_trading_ports(t)
 
