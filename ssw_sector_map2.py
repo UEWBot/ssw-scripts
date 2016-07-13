@@ -1256,14 +1256,14 @@ class SectorMapParser():
         for form in soup.body.find_all('form'):
             if form.attrs['name'] == 'telform':
                 teleporter = form
-        for option in teleporter.find_all('option'):
-            m = TELEPORTER_RE.search(option.string)
-            if m:
-                planet = m.group(1)
-                sector = int(m.group(2))
-                if (planet, sector) not in self.planets:
-                    # TODO What should we do here ?
-                    print "Telporter menu item %s (%d) not found in map" % (planet, sector)
+                for option in teleporter.find_all('option'):
+                    m = TELEPORTER_RE.search(option.string)
+                    if m:
+                        planet = m.group(1)
+                        sector = int(m.group(2))
+                        if (planet, sector) not in self.planets:
+                            # TODO What should we do here ?
+                            print "Telporter menu item %s (%d) not found in map" % (planet, sector)
 
     # TODO Can these three methods be merged together ?
     def enhance_map_with_planets(self, expected_planets):
