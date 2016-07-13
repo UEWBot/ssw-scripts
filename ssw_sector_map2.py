@@ -845,6 +845,7 @@ YIN_RE = re.compile('<B>Yin: </B>(\w*) ')
 YANG_RE = re.compile('<B>Yang: </B>(\w*) ')
 HIGH_RE = re.compile('<B>High:</B> (\d*)')
 
+WARP_RE = re.compile('<br>IR Warp from #(\d*) to #(\d*) \((\d*) fuel\)')
 JELLYFISH_RE = re.compile('Space Jellyfish in sector!')
 BLACKHOLE_RE = re.compile('Black Hole in sector!')
 TRADING_PORT_RE = re.compile('(Trader .* Trading Port #\d*)')
@@ -899,6 +900,7 @@ class SectorMapParser():
         self.last_density = {}
         self.names = {}
         self.notes = {}
+        self.warp_costs = {}
 
         self.parse_soup(self.soup)
 
@@ -906,6 +908,30 @@ class SectorMapParser():
         self.max_distance = 15
         # Populated on-demand in self.distances()
         self.the_distances = None
+
+    def _add_warp_cost(self, start, end, fuel):
+        '''
+        Add a warp cost to self.warp_costs, overwriting any existing value
+        '''
+        if start not in self.warp_costs:
+            self.warp_costs[start] = {}
+        self.warp_costs[start][end] = fuel
+
+    def warp_cost(self, start_sector, end_sector):
+        '''
+        Returns the fuel cost for a warp between the two specified sectors, if known.
+        Returns None for "unknown".
+        '''
+        if start_sector == end_sector:
+            return 0
+        try:
+            d = self.warp_costs[start_sector]
+        except KeyError:
+            return None
+        try:
+            return d[end_sector]
+        except KeyError:
+            return None
 
     def distances(self):
         '''
@@ -1037,6 +1063,14 @@ class SectorMapParser():
                     self.ores_sold[ore] = []
                 self.ores_sold[ore].append((cost, num))
                 ore_sells.append((ore, cost))
+        # Is there a warp fuel cost ?
+        m = WARP_RE.search(popup)
+        if m:
+            start = int(m.group(1))
+            end = int(m.group(2))
+            fuel = int(m.group(3))
+            self._add_warp_cost(start, end, fuel)
+            # TODO If warp costs are always the same both ways, populate both here
         # Are there jellyfish ?
         if JELLYFISH_RE.search(popup):
             self.jellyfish.append(num)
