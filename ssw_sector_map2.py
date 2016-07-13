@@ -599,7 +599,7 @@ def can_move(from_sector, to_sector, missing_links={}, avoiding_sectors=[]):
     try:
         if to_sector in missing_links[from_sector]:
             return False
-    except:
+    except KeyError:
         pass
     if to_sector in avoiding_sectors:
         return False
