@@ -991,7 +991,7 @@ class SectorMapParser():
         m = POWERUPS_RE.search(popup)
         if m:
             self.powerups_percentage = int(m.group(1))
-            assert self.powerups_percentage < 101
+            # Note that "powerups percentage" can exceed 100%
         m = MILITARY_CONTROL_RE.search(popup)
         if m:
             self.military_control = m.group(1)
