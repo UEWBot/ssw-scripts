@@ -1336,7 +1336,7 @@ class SectorMapParser():
             self.black_holes += unknown_black_holes
             print "Added %d black hole(s)" % len(unknown_black_holes)
 
-        self.enhance_map_with_planets(self.expected_npc_stores())
+        self.enhance_map_with_npc_stores(self.expected_npc_stores())
 
         if len(self.missing_links) < len(self.expected_missing_links()):
             unknown_missing_links = [(sector,links) for sector,links in self.expected_missing_links().iteritems() if sector not in self.missing_links]
