@@ -1324,10 +1324,11 @@ class SectorMapParser():
     def enhance_map(self):
         '''
         Adds known info to a partially-populated map.
-        Can include missing links, black holes, NPC stores and planets,
-        because they all stay put.
-        Asteroids and trading ports move at reset.
-        IPTs, jellyfish and luvsats move daily.
+        Can include black holes, NPC stores and planets, because they all stay put (more-or-less).
+        Missing links, asteroids and trading ports move at reset, so we may also know where they are.
+        IPTs, jellyfish and luvsats move daily, so nothing is added regarding those.
+        If the map is for today, it also retrieves the lists of planets, NPC stores, asteroids,
+        and trading ports from the databuddy and enhances the map with those, too.
         '''
         self.enhance_map_with_planets(self.expected_planets())
 
