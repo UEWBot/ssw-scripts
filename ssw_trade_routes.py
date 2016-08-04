@@ -20,9 +20,13 @@ Script to find trade routes (and LuvSats) from an SSW sector map
 # TODO: I think we might miss some trade routes when space is partially drone-filled.
 #       We exclude enemy sectors, but do we find all the best routes from what's left ?
 
+from __future__ import absolute_import
+from __future__ import print_function
 import ssw_sector_map2 as ssw_sector_map
 import ssw_map_utils, ssw_societies, ssw_utils
 import operator, sys, getopt, datetime
+import six
+from six.moves import map
 
 version = 1.02
 
@@ -73,7 +77,7 @@ def drone_str_for_sectors(sectors, drones_by_sector):
             return drones_by_sector[sector]
         except:
             return ''
-    drone_list = map(to_str, sectors)
+    drone_list = list(map(to_str, sectors))
     return '[' + ', '.join(drone_list) + ']'
 
 def print_best_ore_prices(p, ore_best_sectors, indent, society, buy, sell, unexplored_sector_society=None):
@@ -87,7 +91,7 @@ def print_best_ore_prices(p, ore_best_sectors, indent, society, buy, sell, unexp
     best_sectors = [sector for sector, alignment in ore_best_sectors]
     routes = ssw_map_utils.best_routes(p, best_sectors, None, society, unexplored_sector_society)
     for dis, route, drones, src, dest, poss in routes:
-        print >>fout, "%s%s" % (indent, route),
+        print("%s%s" % (indent, route), end=' ', file=fout)
         # Only count routes that can be taken
         if dis < ssw_sector_map.sectors_per_row:
             routes_printed += 1
@@ -100,13 +104,13 @@ def print_best_ore_prices(p, ore_best_sectors, indent, society, buy, sell, unexp
             else:
                 good = -port.good
                 order = -port.order
-            print >>fout, "[GE:%+d OC:%+d]" % (good, order),
+            print("[GE:%+d OC:%+d]" % (good, order), end=' ', file=fout)
             if len(p.drones):
-                print >>fout, ssw_utils.drones_str(drones, poss)
+                print(ssw_utils.drones_str(drones, poss), file=fout)
             else:
-                print >>fout
+                print(file=fout)
         else:
-            print >>fout
+            print(file=fout)
     return routes_printed
 
 def print_routes(p, sources, destinations, society, trade_at_start, unexplored_sector_society=None, max=200):
@@ -121,7 +125,7 @@ def print_routes(p, sources, destinations, society, trade_at_start, unexplored_s
             routes.append(x)
     routes = sorted(routes,key=operator.itemgetter(0))
     for route in routes[:max]:
-        print >>fout, "    %s " % (route[1]),
+        print("    %s " % (route[1]), end=' ', file=fout)
         # Is there actually a route between those sectors ?
         if route[0] < ssw_sector_map.sectors_per_row:
             # This one counts
@@ -138,14 +142,14 @@ def print_routes(p, sources, destinations, society, trade_at_start, unexplored_s
             assert port, "Trying to sell to sector %d" % route[4]
             good -= port.good
             order -= port.order
-            print >>fout, "[GE:%+d OC:%+d]" % (good, order),
+            print("[GE:%+d OC:%+d]" % (good, order), end=' ', file=fout)
             if len(p.drones):
-                print >>fout, ssw_utils.drones_str(route[2], route[5])
+                print(ssw_utils.drones_str(route[2], route[5]), file=fout)
             else:
-                print >>fout
+                print(file=fout)
         else:
-            print >>fout
-    print >>fout
+            print(file=fout)
+    print(file=fout)
     return routes_printed
 
 def print_ore_buy_routes(p,
@@ -164,7 +168,7 @@ def print_ore_buy_routes(p,
         for price, sectors in price_list:
             if (buy_routes_printed >= min_buy_routes):
                 break
-            print >>fout, "%sBuy %s for %d:" % (header_indent, ore, price)
+            print("%sBuy %s for %d:" % (header_indent, ore, price), file=fout)
             buy_routes_printed += print_best_ore_prices(p,
                                                         sectors,
                                                         indent,
@@ -173,7 +177,7 @@ def print_ore_buy_routes(p,
                                                         False,
                                                         unexplored_sector_society)
     else:
-        print >>fout, "%sNowhere to buy %s" % (header_indent, ore)
+        print("%sNowhere to buy %s" % (header_indent, ore), file=fout)
 
 def parse_asteroid_line(line):
     '''
@@ -264,36 +268,36 @@ def usage(progname, map_file):
     '''
     Prints usage information
     '''
-    print "Usage: %s [-s] [-m] [-t] [-h] [-j] [-p] [-c] [-b] [-l] [-a] [-w] [-y] [-n] [-e] [-x] [-d {a|e|i|o|t}] [-r ore] [-g ore_list] [-i asteroids_filename] [-o output_filename] [map_filename]" % progname
-    print
-    print " Find trade or mining routes"
-    print
-    print "  -s|--no-summary - don't print the summary"
-    print "  -m|--no-trade - don't print trade routes"
-    print "  -t|--no-mining - don't print mining routes"
-    print "  -h|--help - print usage and exit"
-    print "  -j|--dont-enhance - just use the map file, no other knowledge"
-    print "  -p|--prices - print ore price list"
-    print "  -c|--cheapest_ore - print where to buy each ore"
-    print "  -b|--shield_ore - print places to buy shield ore (Bofhozonite) cheapest"
-    print "  -l|--luvsats - print routes to luvsats"
-    print "  -a|--asteroids - list asteroids"
-    print "  --ports - list trading ports"
-    print "  -w|--probe - list sectors to probe"
-    print "  -y|--your-drones - list where your drones are"
-    print "  -n|--control - list number of sectors controlled by each society"
-    print "  -e|--empire - assume that unexplored sectors contain Amaranth drones"
-    print "  -x|--links - print the missing links"
-    print "  -d|--drones {a|e|i|o|t} - avoid drones not belonging to the specified society"
-    print "  -r|--ore - list all the places to get the specified ore"
-    print "  -i|--input - read extra asteroid info from the specified file (pointless unless they've moved since the map was saved)"
-    print "  -o|--output - write output to the specified file"
-    print "  -g|--groceries - report the best route to buy all the specified ores"
-    print "                   ore_list is comma-separated, with no whitespace"
-    print "  map_filename defaults to %s" % map_file
-    print "  default is to just print trade and mining routes"
-    print
-    print " Version %.2f. Brought to you by Squiffle" % version
+    print("Usage: %s [-s] [-m] [-t] [-h] [-j] [-p] [-c] [-b] [-l] [-a] [-w] [-y] [-n] [-e] [-x] [-d {a|e|i|o|t}] [-r ore] [-g ore_list] [-i asteroids_filename] [-o output_filename] [map_filename]" % progname)
+    print()
+    print(" Find trade or mining routes")
+    print()
+    print("  -s|--no-summary - don't print the summary")
+    print("  -m|--no-trade - don't print trade routes")
+    print("  -t|--no-mining - don't print mining routes")
+    print("  -h|--help - print usage and exit")
+    print("  -j|--dont-enhance - just use the map file, no other knowledge")
+    print("  -p|--prices - print ore price list")
+    print("  -c|--cheapest_ore - print where to buy each ore")
+    print("  -b|--shield_ore - print places to buy shield ore (Bofhozonite) cheapest")
+    print("  -l|--luvsats - print routes to luvsats")
+    print("  -a|--asteroids - list asteroids")
+    print("  --ports - list trading ports")
+    print("  -w|--probe - list sectors to probe")
+    print("  -y|--your-drones - list where your drones are")
+    print("  -n|--control - list number of sectors controlled by each society")
+    print("  -e|--empire - assume that unexplored sectors contain Amaranth drones")
+    print("  -x|--links - print the missing links")
+    print("  -d|--drones {a|e|i|o|t} - avoid drones not belonging to the specified society")
+    print("  -r|--ore - list all the places to get the specified ore")
+    print("  -i|--input - read extra asteroid info from the specified file (pointless unless they've moved since the map was saved)")
+    print("  -o|--output - write output to the specified file")
+    print("  -g|--groceries - report the best route to buy all the specified ores")
+    print("                   ore_list is comma-separated, with no whitespace")
+    print("  map_filename defaults to %s" % map_file)
+    print("  default is to just print trade and mining routes")
+    print()
+    print(" Version %.2f. Brought to you by Squiffle" % version)
 
 def parse_ore_list_arg(arg_str):
     '''
@@ -307,7 +311,7 @@ def parse_ore_list_arg(arg_str):
         new_ores = [ore for ore in ssw_sector_map.all_ores if ore.lower().startswith(str.lower())]
         if len(new_ores) == 0:
             # No matches at all
-            raise Invalid_Ore, str
+            raise Invalid_Ore(str)
         retval += new_ores
     return retval
 
@@ -375,7 +379,7 @@ def main(*arguments):
             try:
                 society = ssw_societies.adjective(arg)
             except ssw_societies.Invalid_Society:
-                print 'Unrecognised society "%s" - should be one of %s' % (arg, ssw_societies.initials)
+                print('Unrecognised society "%s" - should be one of %s' % (arg, ssw_societies.initials))
                 usage(sys.argv[0], map_file)
                 sys.exit(2)
         elif (opt == '-p') or (opt == '--prices'):
@@ -407,11 +411,11 @@ def main(*arguments):
                 if len(ores) == 1:
                     ore_of_interest = ores[0]
                 else:
-                    print 'Cannot interpret "%s" as one ore - it maps to %s' % (arg, str(ores))
+                    print('Cannot interpret "%s" as one ore - it maps to %s' % (arg, str(ores)))
                     usage(sys.argv[0], map_file)
                     sys.exit(2)
             except Invalid_Ore:
-                print 'Unrecognised ore "%s"' % (arg)
+                print('Unrecognised ore "%s"' % (arg))
                 usage(sys.argv[0], map_file)
                 sys.exit(2)
         elif (opt == '-g') or (opt == '--groceries'):
@@ -428,75 +432,75 @@ def main(*arguments):
     
     map_valid,reason = p.valid()
     if not map_valid:
-        print >>fout, "Sector map file is invalid - %s" % reason
+        print("Sector map file is invalid - %s" % reason, file=fout)
         sys.exit(2)
     
     # Print summary
     if print_summary:
-        print >>fout
-        print >>fout, "Summary"
+        print(file=fout)
+        print("Summary", file=fout)
         if p.known_sectors == len(ssw_sector_map.all_sectors):
-            print >>fout, "  %d (all) sectors explored" % p.known_sectors
+            print("  %d (all) sectors explored" % p.known_sectors, file=fout)
         else:
-            print >>fout, "  %d of %d sectors explored (%.1f%%)" % (p.known_sectors, len(ssw_sector_map.all_sectors), (100.0*p.known_sectors)/len(ssw_sector_map.all_sectors))
+            print("  %d of %d sectors explored (%.1f%%)" % (p.known_sectors, len(ssw_sector_map.all_sectors), (100.0*p.known_sectors)/len(ssw_sector_map.all_sectors)), file=fout)
             if len(p.forgotten_sectors) > 0:
-                print >>fout, "  %d sector(s) forgotten (%.1f%%)" % (len(p.forgotten_sectors), (100.0*len(p.forgotten_sectors))/len(ssw_sector_map.all_sectors))
+                print("  %d sector(s) forgotten (%.1f%%)" % (len(p.forgotten_sectors), (100.0*len(p.forgotten_sectors))/len(ssw_sector_map.all_sectors)), file=fout)
         if len(p.drones) == 0:
-            print >>fout, "  No sectors with drones"
+            print("  No sectors with drones", file=fout)
         else:
-            print >>fout, "  %d sector(s) with drones (%.1f%%)" % (len(p.drones), (100.0*len(p.drones))/len(ssw_sector_map.all_sectors))
-            print >>fout, "  %d sector(s) with your drones (%d drone(s) in total)" % (len(p.your_drones), sum([d for d,s in p.your_drones]))
+            print("  %d sector(s) with drones (%.1f%%)" % (len(p.drones), (100.0*len(p.drones))/len(ssw_sector_map.all_sectors)), file=fout)
+            print("  %d sector(s) with your drones (%d drone(s) in total)" % (len(p.your_drones), sum([d for d,s in p.your_drones])), file=fout)
         if (len(p.planets) == len(p.expected_planets())):
-            print >>fout, "  %d (all) planets" % len(p.planets)
+            print("  %d (all) planets" % len(p.planets), file=fout)
         else:
-            print >>fout, "  %d of %d planets" % (len(p.planets), len(p.expected_planets()))
+            print("  %d of %d planets" % (len(p.planets), len(p.expected_planets())), file=fout)
         if (len(p.asteroids) == p.expected_asteroids()):
-            print >>fout, "  %d (all) asteroids" % len(p.asteroids)
+            print("  %d (all) asteroids" % len(p.asteroids), file=fout)
         else:
-            print >>fout, "  %d of %d asteroids" % (len(p.asteroids), p.expected_asteroids())
+            print("  %d of %d asteroids" % (len(p.asteroids), p.expected_asteroids()), file=fout)
         if (len(p.black_holes) == len(ssw_sector_map.expected_black_holes)):
-            print >>fout, "  %d (all) black holes" % len(p.black_holes)
+            print("  %d (all) black holes" % len(p.black_holes), file=fout)
         else:
-            print >>fout, "  %d of %d black holes" % (len(p.black_holes), len(ssw_sector_map.expected_black_holes))
+            print("  %d of %d black holes" % (len(p.black_holes), len(ssw_sector_map.expected_black_holes)), file=fout)
         if (len(p.npc_stores) == len(p.expected_npc_stores())):
-            print >>fout, "  %d (all) NPC stores" % len(p.npc_stores)
+            print("  %d (all) NPC stores" % len(p.npc_stores), file=fout)
         else:
-            print >>fout, "  %d of %d NPC stores" % (len(p.npc_stores), len(p.expected_npc_stores()))
+            print("  %d of %d NPC stores" % (len(p.npc_stores), len(p.expected_npc_stores())), file=fout)
         if (len(p.jellyfish) == ssw_sector_map.expected_jellyfish):
-            print >>fout, "  %d (all) space jellyfish" % len(p.jellyfish)
+            print("  %d (all) space jellyfish" % len(p.jellyfish), file=fout)
         else:
-            print >>fout, "  %d of %d space jellyfish" % (len(p.jellyfish), ssw_sector_map.expected_jellyfish)
+            print("  %d of %d space jellyfish" % (len(p.jellyfish), ssw_sector_map.expected_jellyfish), file=fout)
         if (len(p.trading_ports) == ssw_sector_map.expected_trading_ports):
-            print >>fout, "  %d (all) trading ports" % len(p.trading_ports)
+            print("  %d (all) trading ports" % len(p.trading_ports), file=fout)
         else:
-            print >>fout, "  %d of %d trading ports" % (len(p.trading_ports), ssw_sector_map.expected_trading_ports)
+            print("  %d of %d trading ports" % (len(p.trading_ports), ssw_sector_map.expected_trading_ports), file=fout)
         if (len(p.ipts) == ssw_sector_map.expected_ipts):
-            print >>fout, "  %d (all) IPT Beacons" % len(p.ipts)
+            print("  %d (all) IPT Beacons" % len(p.ipts), file=fout)
         else:
-            print >>fout, "  %d of %d IPT Beacons" % (len(p.ipts), ssw_sector_map.expected_ipts)
+            print("  %d of %d IPT Beacons" % (len(p.ipts), ssw_sector_map.expected_ipts), file=fout)
         if (len(p.luvsats) == ssw_sector_map.expected_luvsats):
-            print >>fout, "  %d (all) luvsats" % len(p.luvsats)
+            print("  %d (all) luvsats" % len(p.luvsats), file=fout)
         else:
-            print >>fout, "  %d of %d luvsats" % (len(p.luvsats), ssw_sector_map.expected_luvsats)
+            print("  %d of %d luvsats" % (len(p.luvsats), ssw_sector_map.expected_luvsats), file=fout)
     
     if print_sectors_controlled:
-        print >>fout
-        print >>fout, "Sector control:"
+        print(file=fout)
+        print("Sector control:", file=fout)
         neutral = len(ssw_sector_map.all_sectors)
-        for soc, sectors in sorted(ssw_map_utils.sectors_by_society(p).iteritems()):
+        for soc, sectors in sorted(six.iteritems(ssw_map_utils.sectors_by_society(p))):
             neutral -= len(sectors)
-            print >>fout, "  %s - %d sector(s) (%.1f%%) - %s" % (soc, len(sectors), 100.0*len(sectors)/len(ssw_sector_map.all_sectors), str(sectors))
-        print >>fout, "  Neutral - %d sector(s) (%.1f%%)" % (neutral, 100.0*neutral/len(ssw_sector_map.all_sectors))
+            print("  %s - %d sector(s) (%.1f%%) - %s" % (soc, len(sectors), 100.0*len(sectors)/len(ssw_sector_map.all_sectors), str(sectors)), file=fout)
+        print("  Neutral - %d sector(s) (%.1f%%)" % (neutral, 100.0*neutral/len(ssw_sector_map.all_sectors)), file=fout)
     
     if print_probe_sectors:
-        print >>fout
+        print(file=fout)
         if p.known_sectors == len(ssw_sector_map.all_sectors):
-            print >>fout, "No sectors to probe"
+            print("No sectors to probe", file=fout)
         else:
-            print >>fout, "%d sector(s) to probe: %s" % (len(ssw_map_utils.all_unknown_sectors(p)), str(ssw_map_utils.all_unknown_sectors(p)))
+            print("%d sector(s) to probe: %s" % (len(ssw_map_utils.all_unknown_sectors(p)), str(ssw_map_utils.all_unknown_sectors(p))), file=fout)
 
     if print_missing_links:
-        print >>fout
+        print(file=fout)
         ssw_map_utils.dump_missing_links(p, fout)
     
     if enhance:
@@ -512,46 +516,46 @@ def main(*arguments):
         drones_by_sector = ssw_map_utils.drones_by_sector(p)
     
     if print_buy_prices or print_sell_prices:
-        print >>fout
-        print >>fout, "Best Trading Port prices:"
+        print(file=fout)
+        print("Best Trading Port prices:", file=fout)
     
     # Find best ore sell prices if necessary
     if print_trade_routes or print_sell_prices or print_shields or print_ore_buying_routes or ore_of_interest != None or len(ores_to_buy) > 0:
         ore_buy = ssw_map_utils.places_to_buy_ores(p, society)
     
     if print_sell_prices:
-        for (ore,price_list) in sorted(ore_buy.iteritems()):
+        for (ore,price_list) in sorted(six.iteritems(ore_buy)):
             if len(price_list) > 0:
                 (price,sectors) = price_list[0]
-                print >>fout, " %s for sale for %d in %s" % (ore, price, ports_str(sectors))
+                print(" %s for sale for %d in %s" % (ore, price, ports_str(sectors)), file=fout)
     
     # Find best ore buy prices if necessary
     if print_trade_routes or print_mining_routes or print_buy_prices or ore_of_interest != None:
         ore_sell = ssw_map_utils.places_to_sell_ores(p, society)
     
     if print_buy_prices:
-        print >>fout
-        for (ore,price_list) in sorted(ore_sell.iteritems()):
+        print(file=fout)
+        for (ore,price_list) in sorted(six.iteritems(ore_sell)):
             if len(price_list) > 0:
                 (price,sectors) = price_list[0]
-                print >>fout, " %s bought for %d in %s" % (ore, price, ports_str(sectors))
+                print(" %s bought for %d in %s" % (ore, price, ports_str(sectors)), file=fout)
     
     if print_trade_routes:
         profits = []
-        for ore,price_list in ore_sell.iteritems():
+        for ore,price_list in six.iteritems(ore_sell):
             for sell_price, sell_sectors in price_list:
                 for buy_price, buy_sectors in ore_buy[ore]:
                     if sell_price > buy_price:
                         profits.append((ore,sell_price-buy_price,sell_price,buy_price,buy_sectors,sell_sectors))
     
-        print >>fout
+        print(file=fout)
         # Print trade routes from least to greatest profit
-        print >>fout, "%d Most Profitable Trade Routes" % max_trade_routes
+        print("%d Most Profitable Trade Routes" % max_trade_routes, file=fout)
         # Go through from highest to lowest profit
         trade_routes = 0
         for (ore,profit,sell_price,buy_price,buy_sectors,sell_sectors) in sorted(profits, key=operator.itemgetter(1), reverse=True):
             if (len(buy_sectors) > 0) and (len(sell_sectors) > 0) and (trade_routes < max_trade_routes):
-                print >>fout, "  %d profit buying %s for %d from %s and selling in %s" % (profit,ore,buy_price,ports_str(buy_sectors),ports_str(sell_sectors)) 
+                print("  %d profit buying %s for %d from %s and selling in %s" % (profit,ore,buy_price,ports_str(buy_sectors),ports_str(sell_sectors)), file=fout) 
                 # Don't count it if there are no routes
                 buy_sects = [sector for sector, alignment in buy_sectors]
                 sell_sects = [sector for sector, alignment in sell_sectors]
@@ -559,20 +563,20 @@ def main(*arguments):
                     trade_routes += 1
         if trade_routes < max_trade_routes:
             if trade_routes == 0:
-                print >>fout, "  No trade routes found"
+                print("  No trade routes found", file=fout)
             else:
-                print >>fout, "  Only %d trade route(s) found" % trade_routes
+                print("  Only %d trade route(s) found" % trade_routes, file=fout)
     
     if print_mining_routes or print_asteroids or (ore_of_interest != None):
         asteroids = ssw_map_utils.asteroids_by_ore(p, society)
         all_asteroids = ssw_map_utils.asteroids_by_ore(p, None)
 
     if print_mining_routes:
-        print >>fout
+        print(file=fout)
         # Print mining routes
-        print >>fout, "%d Most Profitable Mining Routes" % max_mining_routes
+        print("%d Most Profitable Mining Routes" % max_mining_routes, file=fout)
         ast_list = []
-        for ore,price_list in ore_sell.iteritems():
+        for ore,price_list in six.iteritems(ore_sell):
             if len(price_list) > 0:
                 (sell_price, sell_sectors) = price_list[0]
                 ast_list.append((ore, sell_price, sell_sectors))
@@ -580,7 +584,7 @@ def main(*arguments):
         mining_routes = 0
         for (ore,sell_price,sell_sectors) in sorted(ast_list, key=operator.itemgetter(1), reverse=True):
             if (ore in asteroids) and (len(asteroids[ore]) > 0) and (len(sell_sectors) > 0) and (mining_routes < max_mining_routes):
-                print >>fout, "  Mine %s in %s, sell for %d in %s" % (ore, str(asteroids[ore]),sell_price,ports_str(sell_sectors))
+                print("  Mine %s in %s, sell for %d in %s" % (ore, str(asteroids[ore]),sell_price,ports_str(sell_sectors)), file=fout)
                 sell_sects = [sector for sector, alignment in sell_sectors]
                 if 0 < print_routes(p,
                                     asteroids[ore],
@@ -592,14 +596,14 @@ def main(*arguments):
                     mining_routes += 1
         if mining_routes < max_mining_routes:
             if mining_routes == 0:
-                print >>fout, "  No mining routes found"
+                print("  No mining routes found", file=fout)
             else:
-                print >>fout, "  Only %d mining route(s) found" % mining_routes
+                print("  Only %d mining route(s) found" % mining_routes, file=fout)
     
     if print_ore_buying_routes:
-        print >>fout
-        print >>fout, "Cheapest places to buy ores"
-        for ore,price_list in sorted(ore_buy.iteritems(), key=operator.itemgetter(0)):
+        print(file=fout)
+        print("Cheapest places to buy ores", file=fout)
+        for ore,price_list in sorted(six.iteritems(ore_buy), key=operator.itemgetter(0)):
             print_ore_buy_routes(p,
                                  ore,
                                  price_list,
@@ -608,11 +612,11 @@ def main(*arguments):
                                  society,
                                  unexplored_sector_society,
                                  '  ')
-            print >>fout
+            print(file=fout)
     
     if print_shields and not print_ore_buying_routes:
         shields = ssw_map_utils.shield_ore
-        print >>fout
+        print(file=fout)
         if shields in ore_buy:
             print_ore_buy_routes(p,
                                  shields,
@@ -623,11 +627,11 @@ def main(*arguments):
                                  unexplored_sector_society)
     
     if ore_of_interest != None:
-        print >>fout
+        print(file=fout)
         if len(ore_buy[ore_of_interest]) > 0 or len(routes) > 0:
-            print >>fout, "Places to get %s ore" % ore_of_interest
+            print("Places to get %s ore" % ore_of_interest, file=fout)
         if len(ore_buy[ore_of_interest]) == 0:
-            print >>fout, "  Nowhere to buy it"
+            print("  Nowhere to buy it", file=fout)
         # Buy it from trading ports
         routes_printed = 0
         for price, sector_list in ore_buy[ore_of_interest]:
@@ -651,23 +655,23 @@ def main(*arguments):
         except KeyError:
             routes = ()
         if len(routes) > 0:
-            print >>fout, "  Or mine it :"
+            print("  Or mine it :", file=fout)
         else:
-            print >>fout, "  Nowhere to mine it"
+            print("  Nowhere to mine it", file=fout)
         # Note that we don't need to limit these because there can only be one per asteroid
         for distance, route, drones, src, dest, poss in routes:
             # Don't print if no route
             if distance < ssw_sector_map.sectors_per_row:
-                print >>fout, "   %s" % (route),
+                print("   %s" % (route), end=' ', file=fout)
                 if len(p.drones):
-                    print >>fout, ssw_utils.drones_str(drones, poss)
+                    print(ssw_utils.drones_str(drones, poss), file=fout)
                 else:
-                    print >>fout
+                    print(file=fout)
 
         if len(ore_sell[ore_of_interest]) > 0:
-            print >>fout, "Places to get rid of %s ore" % ore_of_interest
+            print("Places to get rid of %s ore" % ore_of_interest, file=fout)
         else:
-            print >>fout, "Nowhere to sell %s ore" % ore_of_interest
+            print("Nowhere to sell %s ore" % ore_of_interest, file=fout)
         routes_printed = 0
         for price, sector_list in ore_sell[ore_of_interest]:
             if routes_printed >= routes_to_print:
@@ -684,8 +688,8 @@ def main(*arguments):
         pass
 
     if len(ores_to_buy) >0:
-        print >>fout
-        print >>fout, "Best way to buy %s:" % ', '.join(ores_to_buy)
+        print(file=fout)
+        print("Best way to buy %s:" % ', '.join(ores_to_buy), file=fout)
         # These are keyed by port/sector number
         route_by_port = {}
         distances = {}
@@ -712,7 +716,7 @@ def main(*arguments):
         for ore in ores_to_buy:
             port_sets = add_ports_to_port_sets(port_sets, ports[ore], ore)
         # Find the distance for each port_set, and stuff it in there
-        dist_port_sets = [(total_distance(port_set.values(), distances), port_set) for port_set in port_sets]
+        dist_port_sets = [(total_distance(list(port_set.values()), distances), port_set) for port_set in port_sets]
         # Now sort dist_port_sets by total distance
         dist_port_sets.sort(key=operator.itemgetter(0))
         # There may be multiple routes with the same length,
@@ -722,36 +726,36 @@ def main(*arguments):
                 break
             for port in set(best_dist_port_set[1].values()):
                 intro = '    Buy ' + ', '.join([ore for ore in ores_to_buy if best_dist_port_set[1][ore] == port])
-                print >>fout, '%s - %s' % (intro, route_by_port[port])
-            print >>fout, '  Total distance = %d moves' % best_dist_port_set[0]
-            print >>fout
+                print('%s - %s' % (intro, route_by_port[port]), file=fout)
+            print('  Total distance = %d moves' % best_dist_port_set[0], file=fout)
+            print(file=fout)
 
     if print_asteroids:
-        print >>fout
-        print >>fout, "Asteroids"
+        print(file=fout)
+        print("Asteroids", file=fout)
         for ore in sorted(all_asteroids.keys()):
-            print >>fout, "  %d of %d %s asteroids in %s" % (len(all_asteroids[ore]),
-                                                             p.expected_asteroids()/len(all_asteroids.keys()),
+            print("  %d of %d %s asteroids in %s" % (len(all_asteroids[ore]),
+                                                             p.expected_asteroids()/len(list(all_asteroids.keys())),
                                                              ore,
-                                                             ssw_utils.sector_str(all_asteroids[ore])),
+                                                             ssw_utils.sector_str(all_asteroids[ore])), end=' ', file=fout)
             if (len(p.drones) > 0):
-                print >>fout, " %s" % ( drone_str_for_sectors(all_asteroids[ore],
-                                                              drones_by_sector))
+                print(" %s" % ( drone_str_for_sectors(all_asteroids[ore],
+                                                              drones_by_sector)), file=fout)
             else:
-                print >>fout
-        print >>fout
-        print >>fout, "Asteroid clusters"
+                print(file=fout)
+        print(file=fout)
+        print("Asteroid clusters", file=fout)
         for group in sorted(ssw_map_utils.asteroid_clusters(p), key=len, reverse=True):
             if len(group) > 1:
                 ores = sorted([ore for ore, sector in group])
                 sectors = sorted([sector for ore, sector in group])
-                print >>fout, "  %d asteroids %s in sectors %s" % (len(group), str(ores), str(sectors)),
+                print("  %d asteroids %s in sectors %s" % (len(group), str(ores), str(sectors)), end=' ', file=fout)
                 if (len(p.drones) > 0):
-                    print >>fout, " %s" % (drone_str_for_sectors(sectors, drones_by_sector))
+                    print(" %s" % (drone_str_for_sectors(sectors, drones_by_sector)), file=fout)
                 else:
-                    print >>fout
-        print >>fout
-        print >>fout, "Asteroids next to planets"
+                    print(file=fout)
+        print(file=fout)
+        print("Asteroids next to planets", file=fout)
         for ore, sector in sorted(ssw_map_utils.asteroids_by_planets(p),key=operator.itemgetter(0)):
             if sector in drones_by_sector:
                 drones = " ['"+ drones_by_sector[sector] + "']"
@@ -760,59 +764,59 @@ def main(*arguments):
             planets = [planet for (planet, loc) in p.planets if loc in ssw_sector_map.adjacent_sectors(sector,
                                                                                                        p.can_move_diagonally())]
             planets_str = planet_str(planets)
-            print >>fout, "  %s asteroid in sector %d next to %s%s" % (ore, sector, planets_str, drones)
+            print("  %s asteroid in sector %d next to %s%s" % (ore, sector, planets_str, drones), file=fout)
         # Only display asteroid ownership if we know of at least one droned sector
         if (len(p.drones) > 0):
             for soc in ssw_societies.adjectives:
-                print >>fout
-                print >>fout, "%s Asteroid sectors" % soc
+                print(file=fout)
+                print("%s Asteroid sectors" % soc, file=fout)
                 all_ast_sectors = []
                 for ore,sectors in all_asteroids.items():
                     all_ast_sectors += [sector for sector in sectors if sector in drones_by_sector and drones_by_sector[sector] == soc]
-                print >>fout, "  %s (%d)" % (str(all_ast_sectors), len(all_ast_sectors))
+                print("  %s (%d)" % (str(all_ast_sectors), len(all_ast_sectors)), file=fout)
 
     if print_trading_ports:
-        print >>fout
-        print >>fout, "Trading Ports"
+        print(file=fout)
+        print("Trading Ports", file=fout)
         for port in p.trading_ports:
-            print >>fout, port
+            print(port, file=fout)
     
     if print_luvsats:
-        print >>fout
-        print >>fout, "LuvSats"
+        print(file=fout)
+        print("LuvSats", file=fout)
         for dis,route,drones,src,dest,poss in ssw_map_utils.best_routes(p,
                                                                         p.luvsats,
                                                                         None,
                                                                         society,
                                                                         unexplored_sector_society):
-            print >>fout, " %s" % (route)
+            print(" %s" % (route), file=fout)
     
     if print_your_drones:
-        print >>fout
-        print >>fout, "Your Drones"
+        print(file=fout)
+        print("Your Drones", file=fout)
         total_drones = 0
         for drones, sector in p.your_drones:
             total_drones += drones
-            print >>fout, " %6d drones in sector %d" % (drones, sector)
-        print >>fout, " %6d drones in space in total" % (total_drones)
+            print(" %6d drones in sector %d" % (drones, sector), file=fout)
+        print(" %6d drones in space in total" % (total_drones), file=fout)
 
     # Check that this is today's map
     if not ssw_map_utils.is_todays(p):
-        print
-        print "**** Map is more than 24 hours old"
-        print "From cycle %d," % p.cycle(),
+        print()
+        print("**** Map is more than 24 hours old")
+        print("From cycle %d," % p.cycle(), end=' ')
         if (p.war_ongoing()):
-            print "before",
+            print("before", end=' ')
         else:
-            print "after",
-        print "the war ended"
+            print("after", end=' ')
+        print("the war ended")
     
     # Check for unknown sectors with jellyfish
     unknown_sectors_with_jellyfish = ssw_map_utils.unknown_sectors_with_jellyfish(p)
     if len(unknown_sectors_with_jellyfish) > 0:
-        print
-        print "**** Don't forget to feed the empaths at New Ceylon"
-        print "**** That will explore %d sector(s) : %s" % (len(unknown_sectors_with_jellyfish), str(sorted(list(unknown_sectors_with_jellyfish))))
+        print()
+        print("**** Don't forget to feed the empaths at New Ceylon")
+        print("**** That will explore %d sector(s) : %s" % (len(unknown_sectors_with_jellyfish), str(sorted(list(unknown_sectors_with_jellyfish)))))
     
     if output_filename != None:
         fout.close()

@@ -6,6 +6,8 @@ Script to list the current set of trading ports in SSW
 
 # Copyright 2016 Squiffle
 
+from __future__ import absolute_import
+from __future__ import print_function
 import re, urllib
 from ssw_trading_port import TradingPort
 
@@ -61,7 +63,7 @@ def main():
 
     for trader in t:
         # This is the same format as ssw_trade_routes
-        print trader
+        print(trader)
 
 if __name__ == '__main__':
     main()

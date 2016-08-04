@@ -1,12 +1,17 @@
 #!/usr/bin/python
 
-import HTMLParser, htmlentitydefs
+from __future__ import absolute_import
+from __future__ import print_function
+import six.moves.html_parser, six.moves.html_entities
+import six
+from six.moves import range
+from six.moves import zip
 
-class TradingPostParser(HTMLParser.HTMLParser):
-    entitydefs = htmlentitydefs.entitydefs
+class TradingPostParser(six.moves.html_parser.HTMLParser):
+    entitydefs = six.moves.html_entities.entitydefs
 
     def __init__(self):
-        HTMLParser.HTMLParser.__init__(self)
+        six.moves.html_parser.HTMLParser.__init__(self)
         self.ores_bought = {}
         self.ores_sold = {}
         self.planets = 0
@@ -137,48 +142,48 @@ file.close()
 p = TradingPostParser()
 try:
     p.feed(html)
-except HTMLParser.HTMLParseError, inst:
-    print >>fout, "Unable to parse map file - %s" % inst
+except six.moves.html_parser.HTMLParseError as inst:
+    print("Unable to parse map file - %s" % inst, file=fout)
     sys.exit(2)
 p.close()
 
 ore_best_sell = {}
 ore_best_buy = {}
 
-for (ore,price_list) in p.ores_bought.iteritems():
-    print "%s bought :" % ore
+for (ore,price_list) in six.iteritems(p.ores_bought):
+    print("%s bought :" % ore)
     max_price = 0
     for price, sector in price_list:
         if price > max_price:
             max_price = price
             best_sector = sector
-        print " for %d in sector %d" % (price, sector)
-    print "best price = %d" % max_price
+        print(" for %d in sector %d" % (price, sector))
+    print("best price = %d" % max_price)
     ore_best_sell[ore] = (max_price,best_sector)
-for (ore,price_list) in p.ores_sold.iteritems():
-    print "%s sold :" % ore
+for (ore,price_list) in six.iteritems(p.ores_sold):
+    print("%s sold :" % ore)
     min_price = 200
     for price, sector in price_list:
         if price < min_price:
             min_price = price
             best_sector = sector
-        print " for %d in sector %d" % (price, sector)
-    print "best price = %d" % min_price
+        print(" for %d in sector %d" % (price, sector))
+    print("best price = %d" % min_price)
     ore_best_buy[ore] = (min_price,best_sector)
 
-for ore,(sell_price,sell_sector) in ore_best_sell.iteritems():
+for ore,(sell_price,sell_sector) in six.iteritems(ore_best_sell):
     (buy_price,buy_sector) = ore_best_buy[ore]
-    print "%d profit buying %s for %d from %d and selling in %d" % (sell_price-buy_price,ore,buy_price,buy_sector,sell_sector) 
+    print("%d profit buying %s for %d from %d and selling in %d" % (sell_price-buy_price,ore,buy_price,buy_sector,sell_sector)) 
 
-print
-print "%d planets" % p.planets
-print "%d asteroids" % p.asteroids
-print "%d black holes" % p.black_holes
-print "%d NPC stores" % p.npc_stores
-print "%d space jellyfish" % p.jellyfish
-print "%d trading ports" % p.trading_ports
-print "%d IPT Beacons" % p.ipts
-print "%d luvsat" % p.luvsats
+print()
+print("%d planets" % p.planets)
+print("%d asteroids" % p.asteroids)
+print("%d black holes" % p.black_holes)
+print("%d NPC stores" % p.npc_stores)
+print("%d space jellyfish" % p.jellyfish)
+print("%d trading ports" % p.trading_ports)
+print("%d IPT Beacons" % p.ipts)
+print("%d luvsat" % p.luvsats)
 
-print
+print()
 

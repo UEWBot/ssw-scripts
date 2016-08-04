@@ -43,7 +43,7 @@ def full_name(initial):
     try:
         return full_names[initials.index(initial.upper())]
     except ValueError:
-        raise Invalid_Society, initial
+        raise Invalid_Society(initial)
 
 def adjective(initial):
     '''
@@ -52,7 +52,7 @@ def adjective(initial):
     for society in adjectives:
         if society[0].lower() == initial.lower():
             return society
-    raise Invalid_Society, initial
+    raise Invalid_Society(initial)
 
 def initial(good, order):
     '''

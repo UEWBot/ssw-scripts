@@ -6,9 +6,13 @@ Script to print out some SSW history
 
 # Copyright 2011, 2015-2016 Squiffle
 
+from __future__ import absolute_import
+from __future__ import print_function
 import ssw_sector_map2 as ssw_sector_map
 import ssw_utils
 import operator, sys, getopt, datetime
+from six.moves import map
+from six.moves import range
 
 version = 1.00
 
@@ -19,13 +23,13 @@ def usage(progname):
     '''
     Tell them how to run the program
     '''
-    print "Usage: %s [-h]" % progname
-    print
-    print " Secret Society Wars history"
-    print
-    print "  -h|--help - print usage and exit"
-    print
-    print " Version %.2f. Brought to you by Squiffle" % version
+    print("Usage: %s [-h]" % progname)
+    print()
+    print(" Secret Society Wars history")
+    print()
+    print("  -h|--help - print usage and exit")
+    print()
+    print(" Version %.2f. Brought to you by Squiffle" % version)
 
 def ssw_was_running(date):
     '''
@@ -276,7 +280,7 @@ def main(*arguments):
         events += server_shutdowns()
     events.sort()
     for date, event in events:
-        print "On %s, %s" % (str(date).split(' ')[0], event)
+        print("On %s, %s" % (str(date).split(' ')[0], event))
 
 if __name__ == '__main__':
     main(*sys.argv[1:])

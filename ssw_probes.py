@@ -10,6 +10,8 @@ Script to facilitate updating the sector map when at degree 33
 # TODO: Command-line options to change filenames
 # TODO: Command-line option to set jellyfish_sectors_for_empaths
 
+from __future__ import absolute_import
+from __future__ import print_function
 import ssw_sector_map2 as ssw_sector_map
 import ssw_map_utils
 
@@ -24,8 +26,8 @@ jellyfish_sectors_for_empaths = 2
 try:
     file = open(enemy_sectors_filename)
 except IOError:
-    print
-    print "**** Cannot open file %s - assuming no known enemy sectors" % enemy_sectors_filename
+    print()
+    print("**** Cannot open file %s - assuming no known enemy sectors" % enemy_sectors_filename)
     enemy_sectors = []
 else:
     lines = file.readlines()
@@ -44,12 +46,12 @@ p = ssw_sector_map.SectorMapParser(page)
 
 map_valid,reason = p.valid()
 if not map_valid:
-    print "Sector map file %s is invalid - %s" % (map_filename, reason)
+    print("Sector map file %s is invalid - %s" % (map_filename, reason))
     sys.exit(2)
 
 if not ssw_map_utils.is_todays(p):
-    print
-    print "**** Map is more than 24 hours old"
+    print()
+    print("**** Map is more than 24 hours old")
 
 # Get the list of unexplored sectors in the current map
 unexplored_sectors = ssw_map_utils.all_unknown_sectors(p)
@@ -63,12 +65,12 @@ unknown_sectors_with_jellyfish = ssw_map_utils.unknown_sectors_with_jellyfish(p)
 # Tell user which sectors to probe and whether to talk to the empaths
 # Not worth doing the jellyfish thing for one sector
 if len(unknown_sectors_with_jellyfish) >= jellyfish_sectors_for_empaths:
-    print "Visit the empaths to explore these sectors: %s" % str(sorted(list(unknown_sectors_with_jellyfish)))
+    print("Visit the empaths to explore these sectors: %s" % str(sorted(list(unknown_sectors_with_jellyfish))))
     probe = probe - unknown_sectors_with_jellyfish
 
 if len(probe) > 0:
-    print "Launch %d probes to explore these sectors: %s" % (len(probe), str(sorted(list(probe))))
-    print "Don't forget to run 'ssw_trade_routes.py -mtws > %s' after saving the updated map!" % enemy_sectors_filename
+    print("Launch %d probes to explore these sectors: %s" % (len(probe), str(sorted(list(probe)))))
+    print("Don't forget to run 'ssw_trade_routes.py -mtws > %s' after saving the updated map!" % enemy_sectors_filename)
 else:
-    print "No warp probes needed."
+    print("No warp probes needed.")
 

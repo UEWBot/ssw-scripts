@@ -6,7 +6,9 @@ Low-level utilities for SSW scripts
 
 # Copyright 2008, 2015-2016 Squiffle
 
+from __future__ import absolute_import
 import operator, datetime, unittest
+from six.moves import map
 
 version = 1.00
 

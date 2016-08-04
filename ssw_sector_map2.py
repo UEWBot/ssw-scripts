@@ -11,11 +11,15 @@ This is a copy of ssw_sector_map, reworked to use BeautifulSoup.
 # TODO: Assume that missing links are bi-directional (they always have been so far).
 # TODO: Change to allow debugging to be enabled at run-time
 
+from __future__ import absolute_import
+from __future__ import print_function
 import operator, datetime, unittest, re
 from bs4 import BeautifulSoup
 import ssw_missing_links, ssw_societies, ssw_utils
 from ssw_trading_port import TradingPort
 import ssw_get_asteroids, ssw_get_planets, ssw_get_stores, ssw_get_trading_ports
+import six
+from six.moves import range
 
 '''Set this to True to log debugging information'''
 debug = False
@@ -93,14 +97,14 @@ planets_moved_datetime = datetime.datetime(3011, 6, 21, 16, 26)
 '''
 SSW came back from the dead.
 '''
-shutdown_datetime = datetime.datetime(3012, 02, 12)
+shutdown_datetime = datetime.datetime(3012, 0o2, 12)
 reboot_datetime = datetime.datetime(3015, 11, 17, 18, 12)
 
 '''
 Hedrok vanished, then reappeared
 '''
-hedrok_removed_datetime = datetime.datetime(3016, 1, 21, 23, 07)
-hedrok_restored_datetime = datetime.datetime(3016, 2, 10, 23, 03)
+hedrok_removed_datetime = datetime.datetime(3016, 1, 21, 23, 0o7)
+hedrok_restored_datetime = datetime.datetime(3016, 2, 10, 23, 0o3)
 
 '''
 There was a major rework of space.
@@ -466,16 +470,16 @@ else:
    flog = open("/dev/null", "w")
 
 # List of month numbers and names
-months = dict([(datetime.date(2008,x,01).strftime('%b'),x) for x in range(1,13)])
+months = dict([(datetime.date(2008,x,0o1).strftime('%b'),x) for x in range(1,13)])
 
 '''List of all valid sector numbers'''
-all_sectors = range(1,1090)
+all_sectors = list(range(1,1090))
 
 '''Number of sectors in each row(and column)'''
 sectors_per_row = 33
 
 '''List of valid coordinate (row or column) numbers'''
-coord_range = range(0,sectors_per_row)
+coord_range = list(range(0,sectors_per_row))
 
 def sector_to_coords(sector_number):
     '''
@@ -483,8 +487,8 @@ def sector_to_coords(sector_number):
     Sector numbers start from 1, but we number rows and cols from 0
     '''
     # Sector numbers start from 1, but we'll number rows and cols from 0
-    row = (sector_number-1)/sectors_per_row
-    col = (sector_number-1)%sectors_per_row
+    row = (sector_number - 1) // sectors_per_row
+    col = (sector_number - 1) % sectors_per_row
     return (col,row)
 
 def coords_to_sector(column, row):
@@ -492,7 +496,7 @@ def coords_to_sector(column, row):
     Convert a row and column to a sector number
     Sector numbers start from 1, but we number rows and cols from 0
     '''
-    return (row*sectors_per_row)+column+1
+    return (row * sectors_per_row) + column + 1
 
 def adj_sectors_towards(from_sector, to_sector, can_move_diagonally):
     '''
@@ -682,31 +686,31 @@ def a_route_of_length(length,
     '''
     Find any one route of the specified length between the two sectors
     '''
-    print >>flog
-    print >>flog, "a_route_of_length(%d, %d, %d, %s, ..., %s)" % (length, from_sector, to_sector, str(can_move_diagonally), str(avoiding_sectors))
+    print(file=flog)
+    print("a_route_of_length(%d, %d, %d, %s, ..., %s)" % (length, from_sector, to_sector, str(can_move_diagonally), str(avoiding_sectors)), file=flog)
     if (length == 0) and (from_sector == to_sector):
         # We just need to stay in from_sector
-        print >>flog," Returning []"
+        print(" Returning []", file=flog)
         return []
     elif (length == 1) and to_sector in adjacent_sectors(from_sector,
                                                          can_move_diagonally):
         if can_move(from_sector, to_sector, missing_links, avoiding_sectors):
-            print >>flog," Returning [%d]" % to_sector
+            print(" Returning [%d]" % to_sector, file=flog)
             return [to_sector]
         else:
             # There is no route
-            print >>flog," Returning None (1)"
+            print(" Returning None (1)", file=flog)
             return None
     length -= 1
     for s in adjacent_sectors(from_sector, can_move_diagonally):
-        print >>flog," Trying via %d" % s
+        print(" Trying via %d" % s, file=flog)
         # Figure out whether s is 1 closer to to_sector
         if can_move(from_sector,
                     s,
                     missing_links,
                     avoiding_sectors) and (direct_distance(s,
                                                            to_sector) <= length) :
-            print >>flog," Recursing"
+            print(" Recursing", file=flog)
             temp = a_route_of_length(length,
                                      s,
                                      to_sector,
@@ -714,10 +718,10 @@ def a_route_of_length(length,
                                      missing_links,
                                      avoiding_sectors+[from_sector,s])
             if temp != None:
-                print >>flog," Returning [%d] + %s" % (s, str(temp))
+                print(" Returning [%d] + %s" % (s, str(temp)), file=flog)
                 return [s] + temp
     # If we get here, there are no routes of the specified length
-    print >>flog," Returning None (2)"
+    print(" Returning None (2)", file=flog)
     return None
  
 def routes(from_sector,
@@ -1049,7 +1053,7 @@ class SectorMapParser():
         m = BUYING_RE.search(popup)
         if m:
             prices = self.parse_prices(m.group(1))
-            for ore,cost in prices.iteritems():
+            for ore,cost in six.iteritems(prices):
                 if not ore in self.ores_bought:
                     self.ores_bought[ore] = []
                 self.ores_bought[ore].append((cost, num))
@@ -1058,7 +1062,7 @@ class SectorMapParser():
         m = SELLING_RE.search(popup)
         if m:
             prices = self.parse_prices(m.group(1))
-            for ore,cost in prices.iteritems():
+            for ore,cost in six.iteritems(prices):
                 if not ore in self.ores_sold:
                     self.ores_sold[ore] = []
                 self.ores_sold[ore].append((cost, num))
@@ -1243,7 +1247,7 @@ class SectorMapParser():
                 if self.luvsat_in_sector(sector):
                     density += self.density[item]
             else:
-                print "Unexpected item type %s" % item
+                print("Unexpected item type %s" % item)
         # TODO Add in drones, if any
         return density
 
@@ -1254,7 +1258,7 @@ class SectorMapParser():
         # Find the span with overall universe info
         span = soup.body.find('span')
         # Extract the map's date
-        self.extract_date(unicode(span.contents[0].string))
+        self.extract_date(six.text_type(span.contents[0].string))
         # parse out more interesting information
         popup = span.attrs['onmouseover']
         self.parse_universe_state_popup(popup)
@@ -1265,7 +1269,7 @@ class SectorMapParser():
             if m:
                 density = int(m.group(1))
             for td2 in td.next_siblings:
-                m = CONTENT_RE.search(unicode(td2.string))
+                m = CONTENT_RE.search(six.text_type(td2.string))
                 if m:
                     item = m.group(1).lower()
                     item_count = int(m.group(2))
@@ -1277,7 +1281,7 @@ class SectorMapParser():
         for td in soup.body.find_all('td', width='4%'):
             # Find the sector number
             link = td.find('a')
-            sector = int(unicode(link.string))
+            sector = int(six.text_type(link.string))
             # Find the popup text
             div = td.find('div')
             popup = div.attrs['onmouseover']
@@ -1297,7 +1301,7 @@ class SectorMapParser():
                         sector = int(m.group(2))
                         if (planet, sector) not in self.planets:
                             # TODO What should we do here ?
-                            print "Telporter menu item %s (%d) not found in map" % (planet, sector)
+                            print("Telporter menu item %s (%d) not found in map" % (planet, sector))
 
     # TODO Can these three methods be merged together ?
     def enhance_map_with_planets(self, expected_planets):
@@ -1307,11 +1311,11 @@ class SectorMapParser():
         if len(self.planets) < len(expected_planets):
             unknown_planets = [planet for planet in expected_planets if planet not in self.planets]
             self.planets += unknown_planets
-            print "Added %d planet(s) - %s" % (len(unknown_planets),
-                                               str(unknown_planets))
+            print("Added %d planet(s) - %s" % (len(unknown_planets),
+                                               str(unknown_planets)))
             for name, sector in unknown_planets:
                 if (sector not in self.unknown_sectors) and (sector not in self.forgotten_sectors):
-                    print "*** Added planet %s to known sector %d. Out-of-date planet list ?" % (name, sector)
+                    print("*** Added planet %s to known sector %d. Out-of-date planet list ?" % (name, sector))
 
     def enhance_map_with_npc_stores(self, expected_npc_stores):
         '''
@@ -1323,11 +1327,11 @@ class SectorMapParser():
         if len(self.npc_stores) < len(expected_npc_stores):
             unknown_npc_stores = [npc_store for npc_store in expected_npc_stores if npc_store not in self.npc_stores]
             self.npc_stores += unknown_npc_stores
-            print "Added %d NPC store(s) - %s" % (len(unknown_npc_stores),
-                                                  str(unknown_npc_stores))
+            print("Added %d NPC store(s) - %s" % (len(unknown_npc_stores),
+                                                  str(unknown_npc_stores)))
             for name, sector in unknown_npc_stores:
                 if (sector not in self.unknown_sectors) and (sector not in self.forgotten_sectors):
-                    print "*** Added NPC store %s to known sector %d. Out-of-date NPC store list ?" % (name, sector)
+                    print("*** Added NPC store %s to known sector %d. Out-of-date NPC store list ?" % (name, sector))
 
     def enhance_map_with_asteroids(self, expected_asteroids):
         '''
@@ -1336,11 +1340,11 @@ class SectorMapParser():
         if len(self.asteroids) < len(expected_asteroids):
             unknown_asteroids = [asteroid for asteroid in expected_asteroids if asteroid not in self.asteroids]
             self.asteroids += unknown_asteroids
-            print "Added %d asteroid(s) - %s" % (len(unknown_asteroids),
-                                                 str(unknown_asteroids))
+            print("Added %d asteroid(s) - %s" % (len(unknown_asteroids),
+                                                 str(unknown_asteroids)))
             for name, sector in unknown_asteroids:
                 if (sector not in self.unknown_sectors) and (sector not in self.forgotten_sectors):
-                    print "*** Added asteroid %s to known sector %d. Out-of-date asteroid list ?" % (name, sector)
+                    print("*** Added asteroid %s to known sector %d. Out-of-date asteroid list ?" % (name, sector))
 
     def enhance_map_with_trading_ports(self, expected_trading_ports):
         '''
@@ -1349,11 +1353,11 @@ class SectorMapParser():
         if len(self.trading_ports) < len(expected_trading_ports):
             unknown_trading_ports = [port for port in expected_trading_ports if not self.trading_port_in_sector(port.sector)]
             self.trading_ports += unknown_trading_ports
-            print "Added %d trading port(s) - %s" % (len(unknown_trading_ports),
-                                                     '[' + ', '.join([port.name for port in unknown_trading_ports]) + ']')
+            print("Added %d trading port(s) - %s" % (len(unknown_trading_ports),
+                                                     '[' + ', '.join([port.name for port in unknown_trading_ports]) + ']'))
             for port in unknown_trading_ports:
                 if (port.sector not in self.unknown_sectors) and (port.sector not in self.forgotten_sectors):
-                    print "*** Added trading port %s to known sector %d. Out-of-date trading port list ?" % (port.name, port.sector)
+                    print("*** Added trading port %s to known sector %d. Out-of-date trading port list ?" % (port.name, port.sector))
 
     def enhance_map(self):
         '''
@@ -1369,15 +1373,15 @@ class SectorMapParser():
         if len(self.black_holes) < len(expected_black_holes):
             unknown_black_holes = [black_hole for black_hole in expected_black_holes if black_hole not in self.black_holes]
             self.black_holes += unknown_black_holes
-            print "Added %d black hole(s)" % len(unknown_black_holes)
+            print("Added %d black hole(s)" % len(unknown_black_holes))
 
         self.enhance_map_with_npc_stores(self.expected_npc_stores())
 
         if len(self.missing_links) < len(self.expected_missing_links()):
-            unknown_missing_links = [(sector,links) for sector,links in self.expected_missing_links().iteritems() if sector not in self.missing_links]
+            unknown_missing_links = [(sector,links) for sector,links in six.iteritems(self.expected_missing_links()) if sector not in self.missing_links]
             for sector, links in unknown_missing_links:
                 self.missing_links[sector] = links
-            print "Added %d missing link(s)" % len(unknown_missing_links)
+            print("Added %d missing link(s)" % len(unknown_missing_links))
 
         # If it's today's map, we can also pull info from the databuddy
         if (ssw_utils.today_in_ssw() - self.datetime) > datetime.timedelta(1):
@@ -1409,7 +1413,7 @@ class SectorMapParser():
             return False,'Known plus unknown plus forgotten sectors is %d, not %d' % (self.known_sectors + len(self.unknown_sectors) + len(self.forgotten_sectors), len(all_sectors))
 
         # A Valid map should have the numbers of things that it says it has
-        for key,value in self.expected_totals.iteritems():
+        for key,value in six.iteritems(self.expected_totals):
             if key == 'planets':
                 if len(self.planets) != value:
                     return False,'Expected %d planets, found %d' % (value,
@@ -1448,48 +1452,48 @@ class SectorMapParser():
             # but this is the one place we know will be called once after parsing
             for sector in set(self.expected_missing_links()) - set(self.missing_links):
                 if sector not in self.unknown_sectors + self.forgotten_sectors:
-                    print "WARNING Didn't find expected missing links from sector %d" % (sector)
+                    print("WARNING Didn't find expected missing links from sector %d" % (sector))
             for sector in set(self.missing_links) - set(self.expected_missing_links()):
-                print "WARNING Didn't expect to find missing links in sector %d" % (sector)
+                print("WARNING Didn't expect to find missing links in sector %d" % (sector))
             for planet, sector in set(self.expected_planets()) - set(self.planets):
                 if sector not in self.unknown_sectors + self.forgotten_sectors:
-                    print "WARNING Planet %s is missing from sector %d" % (planet, sector)
+                    print("WARNING Planet %s is missing from sector %d" % (planet, sector))
             for planet, sector in set(self.planets) - set(self.expected_planets()):
                 if ((planet, sector) not in temporary_planets) and ((planet, None) not in temporary_planets):
-                    print "WARNING Didn't expect to find planet %s in sector %d" % (planet, sector)
+                    print("WARNING Didn't expect to find planet %s in sector %d" % (planet, sector))
             if self.expected_asteroids() < len(self.asteroids):
-                print "WARNING: code expects fewer asteroids"
+                print("WARNING: code expects fewer asteroids")
             elif self.expected_asteroids() > len(self.asteroids) + len(self.unknown_sectors) + len(self.forgotten_sectors):
-                print "WARNING: code expects more asteroids"
+                print("WARNING: code expects more asteroids")
             for sector in set(expected_black_holes) - set(self.black_holes):
                 if sector not in self.unknown_sectors + self.forgotten_sectors:
-                    print "WARNING Black hole is missing from sector %d" % (sector)
+                    print("WARNING Black hole is missing from sector %d" % (sector))
             for sector in set(self.black_holes) - set(expected_black_holes):
-                print "WARNING Didn't expect to find black hole in sector %d" % (sector)
+                print("WARNING Didn't expect to find black hole in sector %d" % (sector))
             for store, sector in set(self.expected_npc_stores()) - set(self.npc_stores):
                 if sector not in self.unknown_sectors + self.forgotten_sectors:
-                    print "WARNING NPC store %s is missing from sector %d" % (store, sector)
+                    print("WARNING NPC store %s is missing from sector %d" % (store, sector))
             for store, sector in set(self.npc_stores) - set(self.expected_npc_stores()):
-                print "WARNING Didn't expect to find NPC store %s in sector %d" % (store, sector)
+                print("WARNING Didn't expect to find NPC store %s in sector %d" % (store, sector))
             if expected_jellyfish < len(self.jellyfish):
-                print "WARNING: code expects fewer jellyfish"
+                print("WARNING: code expects fewer jellyfish")
             elif expected_jellyfish > len(self.jellyfish) + len(self.unknown_sectors) + len(self.forgotten_sectors):
-                print "WARNING: code expects more jellyfish"
+                print("WARNING: code expects more jellyfish")
             if expected_trading_ports < len(self.trading_ports):
-                print "WARNING: code expects fewer trading ports"
+                print("WARNING: code expects fewer trading ports")
             elif expected_trading_ports > len(self.trading_ports) + len(self.unknown_sectors) + len(self.forgotten_sectors):
-                print "WARNING: code expects more trading ports"
+                print("WARNING: code expects more trading ports")
             if expected_ipts < len(self.ipts):
-                print "WARNING: code expects fewer IPT beacons"
+                print("WARNING: code expects fewer IPT beacons")
             elif expected_ipts > len(self.ipts) + len(self.unknown_sectors) + len(self.forgotten_sectors):
-                print "WARNING: code expects more IPT beacons"
+                print("WARNING: code expects more IPT beacons")
             if expected_luvsats < len(self.luvsats):
-                print "WARNING: code expects fewer luvsats"
+                print("WARNING: code expects fewer luvsats")
             elif expected_luvsats > len(self.luvsats) + len(self.unknown_sectors) + len(self.forgotten_sectors):
-                print "WARNING: code expects more luvsats"
+                print("WARNING: code expects more luvsats")
             for planet, sector in self.ipts:
                 if (planet, self.sector_of_planet(planet)) not in self.planets:
-                    print "WARNING: IPT in sector %d goes to unknown planet %s" % (sector, planet)
+                    print("WARNING: IPT in sector %d goes to unknown planet %s" % (sector, planet))
 
         # If we get here, all is good
         return True,''

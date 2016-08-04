@@ -6,9 +6,12 @@ Utilities to extract higher-level info from a parsed SSW sector map
 
 # Copyright 2008, 2015 Squiffle
 
+from __future__ import absolute_import
+from __future__ import print_function
 import ssw_sector_map2 as ssw_sector_map
 import ssw_utils
 import operator, datetime, unittest
+import six
 
 version = 1.00
 
@@ -172,7 +175,7 @@ def asteroids_by_ore(in_map, society=None):
     if society != None:
         # Filter out asteroids in drone-filled sectors
         drones = drones_by_sector(in_map)
-        for ore,sectors in asts.iteritems():
+        for ore,sectors in six.iteritems(asts):
             asts[ore] = [sec for sec in sectors if sec not in drones or drones[sec] == society]
     return asts
 
@@ -186,21 +189,21 @@ def dump_missing_links(in_map, fout):
     for sector in in_map.missing_links.keys():
         if not first:
             line += ","
-            print >>fout, line
+            print(line, file=fout)
             line = ""
         line += "%d: %s" % (sector, str(in_map.missing_links[sector]))
         first = False
     line += "}"
-    print >>fout, line
+    print(line, file=fout)
     return
     first = True
-    print >>fout, "{",
+    print("{", end=' ', file=fout)
     for sector in in_map.missing_links.keys():
         if not first:
-            print >>fout, ","
-        print >>fout, "%d: %s" % (sector, str(in_map.missing_links[sector])),
+            print(",", file=fout)
+        print("%d: %s" % (sector, str(in_map.missing_links[sector])), end=' ', file=fout)
         first = False
-    print >>fout, "}"
+    print("}", file=fout)
 
 def ores_bought(in_map, ore):
     '''
@@ -243,7 +246,7 @@ def places_to_sell_ore(in_map, ore, society=None):
     ore_bought_dict = ssw_utils.to_dict(drone_free_price_list(ores_bought(in_map, ore),
                                                               drones_by_sector(in_map),
                                                               society))
-    return sorted(ore_bought_dict.iteritems(),
+    return sorted(six.iteritems(ore_bought_dict),
                   key = operator.itemgetter(0),
                   reverse=True)
 
@@ -254,7 +257,7 @@ def places_to_sell_ores(in_map, society=None):
     Includes no sectors with enemy drones if society is specified.
     '''
     ore_best_sell = {}
-    for ore in in_map.ores_bought.iterkeys():
+    for ore in six.iterkeys(in_map.ores_bought):
         ore_best_sell[ore] = places_to_sell_ore(in_map, ore, society)
     return ore_best_sell
 
@@ -267,7 +270,7 @@ def places_to_buy_ore(in_map, ore, society=None):
     ore_sold_dict = ssw_utils.to_dict(drone_free_price_list(ores_sold(in_map, ore),
                                                             drones_by_sector(in_map),
                                                             society))
-    return sorted(ore_sold_dict.iteritems(), key = operator.itemgetter(0))
+    return sorted(six.iteritems(ore_sold_dict), key = operator.itemgetter(0))
 
 def places_to_buy_ores(in_map, society=None):
     '''
@@ -276,7 +279,7 @@ def places_to_buy_ores(in_map, society=None):
     Includes no sectors with enemy drones if society is specified.
     '''
     ore_best_buy = {}
-    for ore in in_map.ores_sold.iterkeys():
+    for ore in six.iterkeys(in_map.ores_sold):
         ore_best_buy[ore] = places_to_buy_ore(in_map, ore, society)
     return ore_best_buy
 

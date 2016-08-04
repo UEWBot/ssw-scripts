@@ -11,10 +11,13 @@
 # as the "cost" and we'd find a solution to maximise value and minimise
 # cost. I think that means solving the travelling salesman problem, though.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
 import getopt
+from six.moves import range
 
-all_sectors = range(1,1090)
+all_sectors = list(range(1,1090))
 
 # all prime numbers less than 1090
 # from some webpage somewhere
@@ -55,12 +58,12 @@ def usage():
     '''
     Print usage info for the script
     '''
-    print "Usage: %s sum [-f sector_found] [list of visited sectors]" % (sys.argv[0])
-    print "    where sector_found is the sector where a piece has been found"
-    print "    and list of visited sectors is a list of sectors that have been checked"
-    print "    all sector are number in the range %d..%d" % (all_sectors[0], all_sectors[-1])
-    print "    e.g. %s 1201 -f 151 3 5 7" % sys.argv[0]
-    print "      - visited 3, 5, 7, and 151 and found a piece in 151"
+    print("Usage: %s sum [-f sector_found] [list of visited sectors]" % (sys.argv[0]))
+    print("    where sector_found is the sector where a piece has been found")
+    print("    and list of visited sectors is a list of sectors that have been checked")
+    print("    all sector are number in the range %d..%d" % (all_sectors[0], all_sectors[-1]))
+    print("    e.g. %s 1201 -f 151 3 5 7" % sys.argv[0])
+    print("      - visited 3, 5, 7, and 151 and found a piece in 151")
 
 def find_triple(first, second, sum, primes):
     '''
@@ -126,7 +129,7 @@ for i in visited:
         primes.remove(i)
     except ValueError:
         # Doesn't matter if it's not in the list
-        print "%d isn't prime" % i
+        print("%d isn't prime" % i)
 
 # Search for the candidate sectors
 if found1 != None:
@@ -148,8 +151,8 @@ else:
 # List best sectors to search
 temp = [(s, sectors_to_visit.count(s)) for s in set(sectors_to_visit)]
 freqs = sorted(temp, compare)
-print "Sectors by frequency (max %d to visit):" % len(freqs)
-print "(there are %d prime sectors, %d sectors total)" % (len(primes), len(all_sectors))
+print("Sectors by frequency (max %d to visit):" % len(freqs))
+print("(there are %d prime sectors, %d sectors total)" % (len(primes), len(all_sectors)))
 for (sector, count) in freqs:
-    print "Sector %d (%d occurrences)" % (sector, count)
+    print("Sector %d (%d occurrences)" % (sector, count))
 

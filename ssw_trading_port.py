@@ -6,6 +6,7 @@ Class to represent an SSW Trading Port
 
 # Copyright 2008-2016 Squiffle
 
+from __future__ import absolute_import
 import unittest
 import ssw_societies
 

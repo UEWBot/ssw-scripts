@@ -4,6 +4,8 @@
 
 # Copyright 2008, 2015-2016 Squiffle
 
+from __future__ import absolute_import
+from __future__ import print_function
 import ssw_sector_map2 as ssw_sector_map
 import ssw_utils
 import operator, sys, getopt, datetime, copy, glob
@@ -134,13 +136,13 @@ def usage():
     '''
     Print how to use this script
     '''
-    print "Usage: %s [map_filenames]" % sys.argv[0]
-    print
-    print " Find how things move in SSW"
-    print
-    print "  default is to %strack asteroids, to %strack black holes, to %strack NPC stores, to %strack jellyfish, to %strack trading port movement, to %strack trading port prices, to %strack IPT beacons and to %strack luvsats" % (bool_to_str(track_asteroids),bool_to_str(track_black_holes),bool_to_str(track_npc_stores),bool_to_str(track_jellyfish),bool_to_str(track_trading_port_movements),bool_to_str(track_trading_port_prices),bool_to_str(track_ipt_beacons),bool_to_str(track_luvsats))
-    print
-    print " Version %.2f. Brought to you by Squiffle" % version
+    print("Usage: %s [map_filenames]" % sys.argv[0])
+    print()
+    print(" Find how things move in SSW")
+    print()
+    print("  default is to %strack asteroids, to %strack black holes, to %strack NPC stores, to %strack jellyfish, to %strack trading port movement, to %strack trading port prices, to %strack IPT beacons and to %strack luvsats" % (bool_to_str(track_asteroids),bool_to_str(track_black_holes),bool_to_str(track_npc_stores),bool_to_str(track_jellyfish),bool_to_str(track_trading_port_movements),bool_to_str(track_trading_port_prices),bool_to_str(track_ipt_beacons),bool_to_str(track_luvsats)))
+    print()
+    print(" Version %.2f. Brought to you by Squiffle" % version)
 
 # Parse command-line options
 if len(sys.argv) > 1:
@@ -159,7 +161,7 @@ for filename in map_files:
     if map_valid:
         maps.append((filename,p))
     else:
-        print >>fout, '"%s" doesn\'t seem to be an SSW map file - %s' % (filename, reason)
+        print('"%s" doesn\'t seem to be an SSW map file - %s' % (filename, reason), file=fout)
 
 # Sort maps by date
 maps.sort(key=operator.itemgetter(1),cmp=cmp_map_datetimes)
@@ -167,15 +169,15 @@ maps.sort(key=operator.itemgetter(1),cmp=cmp_map_datetimes)
 # Print summary
 temp = (len(map_files) - len(maps))
 if temp > 0 :
-    print >>fout, "%d file(s) weren't SSW map files" % temp
-    print >>fout
-print >>fout, "%d map file(s) parsed" % len(maps)
+    print("%d file(s) weren't SSW map files" % temp, file=fout)
+    print(file=fout)
+print("%d map file(s) parsed" % len(maps), file=fout)
 for f,m in maps:
-    print >>fout, "  %s - map for %s" % (f, str(m.datetime))
+    print("  %s - map for %s" % (f, str(m.datetime)), file=fout)
 
 # Calculate how things move over time if we have more than one map
 if len(maps) < 2:
-    print >>fout, "No comparisons possible"
+    print("No comparisons possible", file=fout)
     sys.exit(0)
 
 # TODO We have two styles of lists to compare
@@ -187,8 +189,8 @@ if len(maps) < 2:
 if track_asteroids:
     for f,m in maps[:-1]:
         f2,m2 = maps[maps.index((f,m))+1]
-        print >>fout
-        print >>fout, "Longest distances from %s to %s for asteroids:" % (str(m.datetime),str(m2.datetime))
+        print(file=fout)
+        print("Longest distances from %s to %s for asteroids:" % (str(m.datetime),str(m2.datetime)), file=fout)
         # Pair up matching items in the two lists
         l1 = ssw_utils.to_dict(m.asteroids)
         l2 = ssw_utils.to_dict(m2.asteroids)
@@ -200,12 +202,12 @@ if track_asteroids:
                     d = ssw_sector_map.direct_distance(i[0],i[1]) 
                     if d > longest:
                         longest = d
-                print >>fout, " %s - %d" % (ore,longest)
+                print(" %s - %d" % (ore,longest), file=fout)
             else:
-                print >>fout, " Can't map for %s - %d asteroids became %d" % (ore, len(l1[ore]), len(l2[ore]))
+                print(" Can't map for %s - %d asteroids became %d" % (ore, len(l1[ore]), len(l2[ore])), file=fout)
 
 if track_black_holes:
-    print >>fout
+    print(file=fout)
     for f,m in maps[:-1]:
         f2,m2 = maps[maps.index((f,m))+1]
         mapping = closest_mapping(m.black_holes,m2.black_holes)
@@ -215,15 +217,15 @@ if track_black_holes:
                 d = ssw_sector_map.direct_distance(i[0],i[1]) 
                 if d > longest:
                     longest = d
-            print >>fout, "Longest distance from %s to %s for black_holes - %d" % (str(m.datetime),str(m2.datetime),longest)
+            print("Longest distance from %s to %s for black_holes - %d" % (str(m.datetime),str(m2.datetime),longest), file=fout)
         else:
-            print >>fout, "Can't map - %d black holes became %d" % (len(m.black_holes), len(m2.black_holes))
+            print("Can't map - %d black holes became %d" % (len(m.black_holes), len(m2.black_holes)), file=fout)
 
 if track_npc_stores:
     for f,m in maps[:-1]:
         f2,m2 = maps[maps.index((f,m))+1]
-        print >>fout
-        print >>fout, "Longest distances from %s to %s for NPC stores:" % (str(m.datetime),str(m2.datetime))
+        print(file=fout)
+        print("Longest distances from %s to %s for NPC stores:" % (str(m.datetime),str(m2.datetime)), file=fout)
         # Pair up matching items in the two lists
         l1 = ssw_utils.to_dict(m.npc_stores)
         l2 = ssw_utils.to_dict(m2.npc_stores)
@@ -235,22 +237,22 @@ if track_npc_stores:
                     d = ssw_sector_map.direct_distance(i[0],i[1]) 
                     if d > longest:
                         longest = d
-                print >>fout, " %s - %d" % (store,longest)
+                print(" %s - %d" % (store,longest), file=fout)
             else:
-                print >>fout, " Can't map for %s - %d stores became %d" % (store, len(l1[ore]), len(l2[ore]))
+                print(" Can't map for %s - %d stores became %d" % (store, len(l1[ore]), len(l2[ore])), file=fout)
 
 if track_jellyfish:
-    print >>fout
-    print >>fout, "You've got to be kidding - do you know how long it would take to track jellyfish ?"
+    print(file=fout)
+    print("You've got to be kidding - do you know how long it would take to track jellyfish ?", file=fout)
 
 if track_trading_port_movement or track_trading_port_prices:
-    print >>fout
+    print(file=fout)
     for f,m in maps[:-1]:
         f2,m2 = maps[maps.index((f,m))+1]
         if track_trading_port_movement:
             # First look at any actual movement of trading ports
-            print m.trading_ports
-            print m2.trading_ports
+            print(m.trading_ports)
+            print(m2.trading_ports)
             mapping = closest_mapping(m.trading_ports,m2.trading_ports)
             if len(mapping) > 0:
                 longest = 0
@@ -258,47 +260,47 @@ if track_trading_port_movement or track_trading_port_prices:
                     d = ssw_sector_map.direct_distance(i[0],i[1]) 
                     if d > longest:
                         longest = d
-                print >>fout, "Longest distance from %s to %s for trading ports - %d" % (str(m.datetime),str(m2.datetime),longest)
+                print("Longest distance from %s to %s for trading ports - %d" % (str(m.datetime),str(m2.datetime),longest), file=fout)
             else:
-                print >>fout, "Can't map - %d trading ports became %d" % (len(m.trading_ports), len(m2.trading_ports))
+                print("Can't map - %d trading ports became %d" % (len(m.trading_ports), len(m2.trading_ports)), file=fout)
         if track_trading_port_prices:
             for ore in m.ores_sold.keys():
-                print >>fout, " %s sold in %d ports on %s vs %d on %s" % (ore, len(m.ores_sold[ore]), str(m.datetime), len(m2.ores_sold[ore]), str(m2.datetime))
+                print(" %s sold in %d ports on %s vs %d on %s" % (ore, len(m.ores_sold[ore]), str(m.datetime), len(m2.ores_sold[ore]), str(m2.datetime)), file=fout)
                 count = 0
                 prices = [price for price,s in m.ores_sold[ore]]
                 for price,port in m.ores_sold[ore]:
                     if port not in [s for p,s in m2.ores_sold[ore]]:
                         count += 1
     #                    print >>fout, " Port in %d stopped selling %s at %d" % (port,ore,price)
-                print >>fout, " %d ports stopped selling %s" % (count, ore)
-                print >>fout, " Prices for %s ranged from %d to %d. Mean = %f, median = %d, mode = %d" % (ore, min(prices), max(prices), mean(prices), median(prices), mode(prices))
+                print(" %d ports stopped selling %s" % (count, ore), file=fout)
+                print(" Prices for %s ranged from %d to %d. Mean = %f, median = %d, mode = %d" % (ore, min(prices), max(prices), mean(prices), median(prices), mode(prices)), file=fout)
                 count = 0
                 prices = [price for price,s in m2.ores_sold[ore]]
                 for price,port in m2.ores_sold[ore]:
                     if port not in [s for p,s in m.ores_sold[ore]]:
                         count += 1
     #                    print >>fout, " Port in %d started selling %s at %d" % (port,ore,price)
-                print >>fout, " %d ports started selling %s" % (count, ore)
-                print >>fout, " Prices for %s now range from %d to %d. Mean = %f, median = %d, mode = %d" % (ore, min(prices), max(prices), mean(prices), median(prices), mode(prices))
+                print(" %d ports started selling %s" % (count, ore), file=fout)
+                print(" Prices for %s now range from %d to %d. Mean = %f, median = %d, mode = %d" % (ore, min(prices), max(prices), mean(prices), median(prices), mode(prices)), file=fout)
             # TODO Look at price changes
 
 for f,m in maps:
-    print m.ipts
+    print(m.ipts)
 
 if track_ipt_beacons:
     # IPT beacons are tricky - there aren't always the same number of IPTs to any given planet
     # presumably they both move and change destination
-    print >>fout
+    print(file=fout)
     for f,m in maps[:-1]:
-        print >>fout
+        print(file=fout)
         f2,m2 = maps[maps.index((f,m))+1]
-        print m.ipts
-        print m2.ipts
+        print(m.ipts)
+        print(m2.ipts)
         # Pair up matching items in the two lists
         l1 = ssw_utils.to_dict(m.ipts)
         l2 = ssw_utils.to_dict(m2.ipts)
-        print l1
-        print l2
+        print(l1)
+        print(l2)
 #        for dest in l1.keys():
 #            mapping = closest_mapping(l1[dest],l2[dest])
 #            if len(mapping) > 0:
@@ -312,7 +314,7 @@ if track_ipt_beacons:
 #                print >>fout, "Can't map - %d IPT beacons became %d" % (len(l1), len(l2))
 
 if track_luvsats:
-    print >>fout
+    print(file=fout)
     for f,m in maps[:-1]:
         f2,m2 = maps[maps.index((f,m))+1]
         mapping = closest_mapping(m.luvsats,m2.luvsats)
@@ -322,7 +324,7 @@ if track_luvsats:
                 d = ssw_sector_map.direct_distance(i[0],i[1]) 
                 if d > longest:
                     longest = d
-            print >>fout, "Longest distance from %s to %s for luvsats - %d" % (str(m.datetime),str(m2.datetime),longest)
+            print("Longest distance from %s to %s for luvsats - %d" % (str(m.datetime),str(m2.datetime),longest), file=fout)
         else:
-            print >>fout, "Can't map - %d luvsats became %d" % (len(m.luvsats), len(m2.luvsats))
+            print("Can't map - %d luvsats became %d" % (len(m.luvsats), len(m2.luvsats)), file=fout)
 

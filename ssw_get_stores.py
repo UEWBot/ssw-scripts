@@ -6,6 +6,8 @@ Script to list the current set of NPC stores in SSW
 
 # Copyright 2016 Squiffle
 
+from __future__ import absolute_import
+from __future__ import print_function
 import re, urllib
 
 npc_stores_url = "http://www.secretsocietywars.com/databuddy_ajax.php?factor=stores"
@@ -49,7 +51,7 @@ def main():
 
     # No format to match here. One per line makes it easy to parse
     for p in npc_stores:
-        print p
+        print(p)
 
 if __name__ == '__main__':
     main()

@@ -8,6 +8,8 @@ Script to create my daily trade reports
 
 # TODO: Add command-line options to specify filenames
 
+from __future__ import absolute_import
+from __future__ import print_function
 import ssw_sector_map2 as ssw_sector_map
 import ssw_trade_routes, ssw_societies
 import sys, getopt
@@ -25,14 +27,14 @@ def usage(progname):
     '''
     Prints usage information
     '''
-    print
-    print "usage: %s [-3 society|-h|--help]" % progname
-    print
-    print "  -3|-33 - print report for 33ers"
-    print "  society - which society to report for."
-    print "  -h|--help - print this usage info and exit"
-    print
-    print " Version %.2f. Brought to you by Squiffle" % version
+    print()
+    print("usage: %s [-3 society|-h|--help]" % progname)
+    print()
+    print("  -3|-33 - print report for 33ers")
+    print("  society - which society to report for.")
+    print("  -h|--help - print this usage info and exit")
+    print()
+    print(" Version %.2f. Brought to you by Squiffle" % version)
 
 # Parse command-line options
 try:
@@ -47,8 +49,8 @@ for opt,arg in opts:
         try:
             society = ssw_societies.adjective(arg)
         except ssw_societies.Invalid_Society:
-            print "Can't map %s to a society - should be one of %s" % (arg,
-                                                                       ssw_societies.initials)
+            print("Can't map %s to a society - should be one of %s" % (arg,
+                                                                       ssw_societies.initials))
             usage(sys.argv[0])
             sys.exit(2)
         options_33.append(arg)
@@ -75,7 +77,7 @@ else:
     ore = ''
     price = 0
     best_length = ssw_sector_map.sectors_per_row 
-    for line in file.xreadlines():
+    for line in file:
         # Look for the start of the next ore block
         if 'profit buying' in line:
             words = line.split()
@@ -103,8 +105,8 @@ else:
             ore = ''
     file.close()
 
-    print "Today's featured trade route is for %s:" % best_ore
-    print route
+    print("Today's featured trade route is for %s:" % best_ore)
+    print(route)
 
     # Dump out the number of trading ports we're missing
     missing_ports = ssw_sector_map.expected_trading_ports - len(p.trading_ports)
@@ -112,23 +114,23 @@ else:
         ports_str = "port"
         if missing_ports > 1:
             ports_str = "ports"
-        print "Note that I'm missing %d trading %s, so there may be better routes out there" % (missing_ports, ports_str)
+        print("Note that I'm missing %d trading %s, so there may be better routes out there" % (missing_ports, ports_str))
 
-    print
+    print()
 
     # Then the bulk of the report
     file = open(temp_filename)
     found_blank_line = False
-    for line in file.xreadlines():
+    for line in file:
         # Throw away everything up to and including the first blank line
         # to remove any "added asteroid" output
         if found_blank_line:
-            print line,
+            print(line, end=' ')
         else:
             if len(line) == 1:
                 found_blank_line = True
     file.close()
 
 # Finally, append my signature
-print "Squiffle"
+print("Squiffle")
 

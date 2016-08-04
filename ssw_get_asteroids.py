@@ -6,6 +6,8 @@ Script to list the current set of asteroids in SSW
 
 # Copyright 2016 Squiffle
 
+from __future__ import absolute_import
+from __future__ import print_function
 import re, urllib
 import ssw_utils
 
@@ -46,10 +48,10 @@ def main():
     d = ssw_utils.to_dict(a)
     for ore in sorted(d.keys()):
         # Use the same format as in ssw_trade_routes
-        print "%d of %d %s asteroids in %s" % (len(d[ore]),
+        print("%d of %d %s asteroids in %s" % (len(d[ore]),
                                                len(d[ore]),
                                                ore,
-                                               ssw_utils.sector_str(d[ore]))
+                                               ssw_utils.sector_str(d[ore])))
 
 if __name__ == '__main__':
     main()
