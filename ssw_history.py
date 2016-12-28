@@ -209,11 +209,7 @@ def planet_x():
     '''
     retval = []
     today = ssw_utils.now_in_ssw()
-    this_ssw_year = today.year
-    end_year = this_ssw_year
-    if (today > today.replace(month=12,day=24)):
-        end_year += 1
-    for year in range(3007,end_year):
+    for year in range(3007, 3016):
         sector = ssw_sector_map.planet_x_sector(year)
         start_date = datetime.datetime(year, 12, 25, 0, 0)
         end_date = datetime.datetime(year+1, 1, 1, 0, 0)
@@ -229,6 +225,12 @@ def planet_x():
                 if (end_date < today):
                     retval.append((end_date,
                                    "Planet X disappeared from sector %d" % sector))
+    sectors = ssw_sector_map.planet_x_3016_locations()
+    for day in range(25, 32):
+        date = datetime.datetime(3016, 12, day, 0, 0)
+        if today >= date:
+            sector = sectors[date.date()]
+            retval.append((date, "Planet X was in sector %d" % sector))
     return retval
 
 def main(*arguments):

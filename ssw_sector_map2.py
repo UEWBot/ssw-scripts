@@ -216,14 +216,29 @@ def love_boat_sector(year):
 '''Where was Planet X ?'''
 def planet_x_sector(year):
     """
-    Returns the sector where Planet X appeared in the specified year, if known
+    Returns the sector where Planet X appeared in the specified year, if known.
+    For 3016, returns a dict, indexed by date, of sectors.
     """
     # TODO Add Planet X locations for 3007, 3008 and 3009
     if (year == 3010):
         return 516
     if (year == 3015):
         return 516
+    if (year == 3016):
+        # Planet X moved around this year
+        return planet_x_3016_locations()
     return None
+
+def planet_x_3016_locations():
+    """
+    Returns a dict, indexed by date, of planet X locations
+    """
+    the_list = {datetime.date(3016, 12, 25): 552,
+                datetime.date(3016, 12, 26): 123,
+                datetime.date(3016, 12, 27): 142,
+                datetime.date(3016, 12, 28): 669,
+               }
+    return the_list
 
 '''The <3 Boat appears on a regular schedule'''
 def love_boat_present(map_date):
@@ -342,7 +357,10 @@ def expected_planets(map_datetime):
     if (planet_x_present(map_date)):
         sector = planet_x_sector(map_date.year)
         if (sector):
-            retval.append((planet_x[0],sector))
+            if type(sector) is dict:
+                retval.append((planet_x[0],sector[map_date]))
+            else:
+                retval.append((planet_x[0],sector))
 
     return retval
 
