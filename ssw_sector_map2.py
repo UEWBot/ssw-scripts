@@ -195,11 +195,11 @@ def can_move_diagonally(map_datetime):
     return not (13 == cycle(map_datetime))
 
 '''Mars appears on a regular schedule'''
-def mars_present(map_datetime):
+def mars_present(map_date):
     """
     Returns a boolean indicating whether Mars appears on the specified date.
     """
-    return ((map_datetime.month, map_datetime.day) in mars_dates)
+    return ((map_date.month, map_date.day) in mars_dates)
 
 '''Where was The <3 Boat ?'''
 def love_boat_sector(year):
@@ -226,20 +226,20 @@ def planet_x_sector(year):
     return None
 
 '''The <3 Boat appears on a regular schedule'''
-def love_boat_present(map_datetime):
+def love_boat_present(map_date):
     """
     Returns a boolean indicating whether The <3 Boat appears on the specified date.
     """
     # Just Valentine's Day
-    return ((map_datetime.month, map_datetime.day) == (2, 14))
+    return ((map_date.month, map_date.day) == (2, 14))
 
 '''Planet X appears on a regular schedule'''
-def planet_x_present(map_datetime):
+def planet_x_present(map_date):
     """
     Returns a boolean indicating whether Planet X appears on the specified date.
     """
     # Christmastime
-    return ((map_datetime.month == 12) and (map_datetime.day >= 25))
+    return ((map_date.month == 12) and (map_date.day >= 25))
 
 '''Planets we expect to always find. List of (name, sector) tuples.'''
 def expected_planets(map_datetime):
@@ -332,14 +332,15 @@ def expected_planets(map_datetime):
             retval.append(restored_planet)
 
     # Intermittent planets
-    if (mars_present(map_datetime)):
+    map_date = map_datetime.date()
+    if (mars_present(map_date)):
         retval.append(mars)
-    if (love_boat_present(map_datetime)):
-        sector = love_boat_sector(map_datetime.year)
+    if (love_boat_present(map_date)):
+        sector = love_boat_sector(map_date.year)
         if (sector):
             retval.append((love_boat[0],sector))
-    if (planet_x_present(map_datetime)):
-        sector = planet_x_sector(map_datetime.year)
+    if (planet_x_present(map_date)):
+        sector = planet_x_sector(map_date.year)
         if (sector):
             retval.append((planet_x[0],sector))
 
