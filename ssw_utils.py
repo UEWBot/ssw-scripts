@@ -50,7 +50,7 @@ def sector_str(sectors):
         retval = ', '.join(map(str,sectors))
     return retval
 
-def today_in_ssw():
+def now_in_ssw():
     '''
     Return the datetime representing 'now' in SSW
     '''

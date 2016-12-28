@@ -132,7 +132,7 @@ def is_todays(in_map):
     '''
     Check whether this is today's map
     '''
-    if (ssw_utils.today_in_ssw() - in_map.datetime) > datetime.timedelta(1):
+    if (ssw_utils.now_in_ssw() - in_map.datetime) > datetime.timedelta(1):
         return False
     return True
 

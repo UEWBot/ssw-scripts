@@ -1384,7 +1384,7 @@ class SectorMapParser():
             print("Added %d missing link(s)" % len(unknown_missing_links))
 
         # If it's today's map, we can also pull info from the databuddy
-        if (ssw_utils.today_in_ssw() - self.datetime) > datetime.timedelta(1):
+        if (ssw_utils.now_in_ssw() - self.datetime) > datetime.timedelta(1):
             return
 
         p = ssw_get_planets.get_planets()
