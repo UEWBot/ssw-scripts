@@ -45,8 +45,8 @@ def server_shutdowns():
     The dates of server shutdowns and restarts.
     '''
     retval = []
-    retval.append((ssw_sector_map.shutdown_datetime, "SSW was shut down"))
-    retval.append((ssw_sector_map.reboot_datetime, "SSW came back from the dead"))
+    retval.append((ssw_sector_map.shutdown_datetime.date(), "SSW was shut down"))
+    retval.append((ssw_sector_map.reboot_datetime.date(), "SSW came back from the dead"))
     return retval
 
 def cycle_dates():
@@ -62,15 +62,15 @@ def cycle_dates():
                               ssw_sector_map.war_end):
         # First entry is a fake
         if (cycle > 0):
-            retval.append((start, "Cycle %d started" % cycle))
+            retval.append((start.date(), "Cycle %d started" % cycle))
             if (war_end == None):
                 today = ssw_utils.now_in_ssw()
                 length = today - start
-                retval.append((today,
+                retval.append((today.date(),
                                "War ongoing, after %d days" % length.days))
             else:
                 length = war_end - start
-                retval.append((war_end,
+                retval.append((war_end.date(),
                                "War %d ended, after %d days" % (cycle, length.days)))
         cycle += 1
     return retval
@@ -80,9 +80,9 @@ def space_changes():
     When space had a major rework
     Returns a list of (date, event string) tuples
     '''
-    retval = [(ssw_sector_map.space_mazified_datetime,
+    retval = [(ssw_sector_map.space_mazified_datetime.date(),
                "Space became a maze"),
-              (ssw_sector_map.space_rework_datetime,
+              (ssw_sector_map.space_rework_datetime.date(),
                "Space was changed substantially, including moving planets and NPC stores")]
     retval.sort()
     return retval
@@ -103,16 +103,16 @@ def changes(before, after, date):
         is_a_move = False
         for diff2 in only_after:
             if diff[0] == diff2[0]:
-                retval.append((date, '%s moved from sector %d to sector %d' % (diff[0], diff[1], diff2[1])))
+                retval.append((date.date(), '%s moved from sector %d to sector %d' % (diff[0], diff[1], diff2[1])))
                 only_after.remove(diff2)
                 is_a_move = True
                 break
         # If it didn't move, it was removed
         if not is_a_move:
-            retval.append((date, '%s disappeared (from sector %d)' % (diff[0], diff[1])))
+            retval.append((date.date(), '%s disappeared (from sector %d)' % (diff[0], diff[1])))
     # Any left in the after list are new additions
     for diff in only_after:
-        retval.append((date, '%s appeared in sector %d' % (diff[0], diff[1])))
+        retval.append((date.date(), '%s appeared in sector %d' % (diff[0], diff[1])))
     return retval
 
 def _changes_from_dates(dates, expected):
@@ -178,7 +178,7 @@ def mars():
         for month, day in ssw_sector_map.mars_dates:
             date = datetime.datetime(year, month, day, 0, 0)
             if (date <= today) and ssw_was_running(date):
-                retval.append((date, "Mars was in sector %d" % ssw_sector_map.mars[1]))
+                retval.append((date.date(), "Mars was in sector %d" % ssw_sector_map.mars[1]))
     return retval
 
 def love_boat():
@@ -197,9 +197,9 @@ def love_boat():
         date = datetime.datetime(year, 2, 14, 0, 0)
         if ssw_was_running(date):
             if (sector == None):
-                retval.append((date, "The <3 Boat was somewhere unrecorded"))
+                retval.append((date.date(), "The <3 Boat was somewhere unrecorded"))
             else:
-                retval.append((date, "The <3 Boat was in sector %d" % sector))
+                retval.append((date.date(), "The <3 Boat was in sector %d" % sector))
     return retval
 
 def planet_x():
@@ -215,22 +215,22 @@ def planet_x():
         end_date = datetime.datetime(year+1, 1, 1, 0, 0)
         if ssw_was_running(start_date):
             if (sector == None):
-                retval.append((start_date,
+                retval.append((start_date.date(),
                                "Planet X appeared somewhere unrecorded"))
                 if (end_date < today):
-                    retval.append((end_date, "Planet X disappeared again"))
+                    retval.append((end_date.date(), "Planet X disappeared again"))
             else:
-                retval.append((start_date,
+                retval.append((start_date.date(),
                                "Planet X appeared in sector %d" % sector))
                 if (end_date < today):
-                    retval.append((end_date,
+                    retval.append((end_date.date(),
                                    "Planet X disappeared from sector %d" % sector))
     sectors = ssw_sector_map.planet_x_3016_locations()
     for day in range(25, 32):
         date = datetime.datetime(3016, 12, day, 0, 0)
         if today >= date:
             sector = sectors[date.date()]
-            retval.append((date, "Planet X was in sector %d" % sector))
+            retval.append((date.date(), "Planet X was in sector %d" % sector))
     return retval
 
 def main(*arguments):
