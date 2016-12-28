@@ -55,24 +55,22 @@ def cycle_dates():
     Returns a list of (date, event string) tuples
     '''
     retval = []
-    cycle = 0
-    # zip() would truncate. map() appends None.
-    for start, war_end in map(None,
-                              ssw_sector_map.cycle_start,
-                              ssw_sector_map.war_end):
-        # First entry is a fake
-        if (cycle > 0):
-            retval.append((start.date(), "Cycle %d started" % cycle))
-            if (war_end == None):
-                today = ssw_utils.now_in_ssw()
-                length = today - start
-                retval.append((today.date(),
-                               "War ongoing, after %d days" % length.days))
-            else:
-                length = war_end - start
-                retval.append((war_end.date(),
-                               "War %d ended, after %d days" % (cycle, length.days)))
-        cycle += 1
+    starts = ssw_sector_map.cycle_start
+    ends = ssw_sector_map.war_end
+    for cycle in range(1, len(starts)):
+        start = starts[cycle]
+        retval.append((start.date(), "Cycle %d started" % cycle))
+        try:
+            war_end = ends[cycle]
+        except IndexError:
+            # This cycle is still ongoing
+            war_end = ssw_utils.now_in_ssw()
+            state_str = "ongoing"
+        else:
+            state_str = "ended"
+        length = war_end - start
+        retval.append((war_end.date(),
+                       "War %d %s, after %d days" % (cycle, state_str, length.days)))
     return retval
 
 def space_changes():
