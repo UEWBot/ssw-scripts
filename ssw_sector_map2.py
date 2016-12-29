@@ -77,7 +77,9 @@ war_end = [None,
            datetime.datetime(3011, 6, 17, 23, 59),
            datetime.datetime(3011, 10, 1, 23, 59),
            datetime.datetime(3011, 12, 5, 23, 59),
-           datetime.datetime(3016, 4, 8, 11, 20)]
+           datetime.datetime(3016, 4, 8, 11, 20),
+           datetime.datetime(3017, 1, 5, 23, 59),
+          ]
 
 '''
 Before this date, movement between adjacent sectors was almost unrestricted
@@ -237,6 +239,9 @@ def planet_x_3016_locations():
                 datetime.date(3016, 12, 26): 123,
                 datetime.date(3016, 12, 27): 142,
                 datetime.date(3016, 12, 28): 669,
+                datetime.date(3016, 12, 29): 1011,
+                datetime.date(3016, 12, 30): 313,
+                datetime.date(3016, 12, 31): 828,
                }
     return the_list
 
