@@ -213,6 +213,8 @@ def love_boat_sector(year):
         return 157
     if (year == 3016):
         return 676
+    if (year == 3017):
+        return 926
     return None
 
 '''Where was Planet X ?'''
