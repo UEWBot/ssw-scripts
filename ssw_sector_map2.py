@@ -52,7 +52,8 @@ cycle_start = [None,
                datetime.datetime(3011, 7, 9, 23, 41),
                datetime.datetime(3011, 10, 12, 23, 40),
                datetime.datetime(3016, 1, 4, 0, 34), # no reset
-               datetime.datetime(3016, 5, 1, 0, 2)]
+               datetime.datetime(3016, 5, 1, 0, 2),
+               datetime.datetime(3017, 4, 30, 0, 18)]
 
 '''
 datetimes for the end of each war
