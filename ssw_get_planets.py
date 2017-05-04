@@ -11,7 +11,7 @@ from __future__ import print_function
 import re, urllib
 
 planets_url = "http://www.secretsocietywars.com/databuddy_ajax.php?factor=planets"
-PLANET_RE = re.compile("img src='(.*?)'.*red;'>(\w*).*Sector:<\/b> (\d*)<br \/>(.*?)<br \/>")
+PLANET_RE = re.compile("img src='(.*?)'.*red;'>([\w ]*).*Sector:<\/b> (\d*)<br \/>(.*?)<br \/>")
 
 def parse_planets(data):
     """
