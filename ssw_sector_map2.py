@@ -1283,12 +1283,14 @@ class SectorMapParser():
         Internal - parse the soup created from the map file
         '''
         # Find the span with overall universe info
-        span = soup.body.find('span')
-        # Extract the map's date
-        self.extract_date(six.text_type(span.contents[0].string))
-        # parse out more interesting information
-        popup = span.attrs['onmouseover']
-        self.parse_universe_state_popup(popup)
+        for span in soup.body.find_all('span'):
+            # Ignore new spans that aren't what we're after
+            if 'onmouseover' in span.attrs:
+                # Extract the map's date
+                self.extract_date(six.text_type(span.contents[0].string))
+                # parse out more interesting information
+                popup = span.attrs['onmouseover']
+                self.parse_universe_state_popup(popup)
 
         # Parse the number of each thing we know about
         for td in soup.body.find_all('td', width='8'):
