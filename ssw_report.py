@@ -76,7 +76,8 @@ else:
     best_ore = ''
     ore = ''
     price = 0
-    best_length = ssw_sector_map.sectors_per_row 
+    best_length = ssw_sector_map.sectors_per_row
+    route = ''
     for line in file:
         # Look for the start of the next ore block
         if 'profit buying' in line:
