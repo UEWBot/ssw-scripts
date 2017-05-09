@@ -317,6 +317,7 @@ def expected_planets(map_datetime):
                   ('Ahlnuldia', 471),
                   ('Laxloo', 493),
                   ('Xiao MeiMei', 612),
+                  ('Lucky Spaceman Distilleries', 631),
                   ('Pharma', 721),
                   ('Hedrok', 867),
                   ('Barnimus', 880),
