@@ -147,7 +147,9 @@ def planet_changes():
                  ssw_sector_map.hedrok_restored_datetime,
                  ssw_sector_map.deep_six_removed_datetime,
                  ssw_sector_map.phallorus_removed_datetime,
-                 ssw_sector_map.eroticon_69_removed_datetime]
+                 ssw_sector_map.eroticon_69_removed_datetime,
+                 ssw_sector_map.cycle_start[21],
+                ]
     return _changes_from_dates(key_dates, ssw_sector_map.expected_planets)
 
 def npc_store_changes():

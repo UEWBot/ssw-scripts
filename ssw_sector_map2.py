@@ -330,7 +330,8 @@ def expected_planets(map_datetime):
 
     # Is the date after the huge re-work ?
     if (map_datetime > space_rework_datetime):
-        if (map_datetime > eroticon_69_removed_datetime):
+        if ((map_datetime > eroticon_69_removed_datetime) and
+            (cycle(map_datetime) < 21)):
             retval = v2_planets
         elif (map_datetime > phallorus_removed_datetime):
             retval = v2_planets + leftovers[2:]
@@ -415,6 +416,8 @@ def expected_missing_links(map_datetime):
         return ssw_missing_links.cycle_19_links
     elif (cycle(map_datetime) == 20):
         return ssw_missing_links.cycle_20_links
+    elif (cycle(map_datetime) == 21):
+        return ssw_missing_links.cycle_21_links
     else:
         # If we get here, we need to add missing links for this cycle
         return {}
