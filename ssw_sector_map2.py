@@ -1648,29 +1648,29 @@ class SectorMapParser():
         Check for it returning None for the sector to see whether it found one.
         Note that we assume that direction doesn't matter
         '''
+        route = None
         enemy_drones = self.enemy_drones(for_society, unexplored_sector_society)
         for d in range(0, self.max_distance+1):
-            #print "nearest(%d) - checking distance %d" % (to_sector, d)
+            #print("nearest(%d) - checking distance %d" % (to_sector, d))
             for name, sector in planets_or_ipts:
                 if sector in self.distances()[d][to_sector]:
-                    #print "nearest() checking %s in %d" % (name, sector)
-                    #print "nearest(%d) checking %s in sector %d at distance %d" % (to_sector, name, sector, d+1)
+                    #print("nearest() checking %s in %d" % (name, sector))
+                    #print("nearest(%d) checking %s in sector %d at distance %d" % (to_sector, name, sector, d+1))
                     drones = []
-                    if len(self.drones):
-                        # find drones en route
-                        # Unfortunately, we have to find the actual route
-                        # Sometimes the route is blocked by drones, so we have to keep looking
-                        # TODO Probably need to check all routes of that length
-                        route = a_route(sector,
-                                        to_sector,
-                                        self.can_move_diagonally(),
-                                        self.missing_links,
-                                        enemy_drones,
-                                        min_length = d)
-                        #print "nearest() checking route %s" % route
-                        if route == None:
-                            continue
-                        drones = drones_en_route(route, self.drones)
+                    # find drones en route
+                    # Unfortunately, we have to find the actual route
+                    # Sometimes the route is blocked by drones, so we have to keep looking
+                    # TODO Probably need to check all routes of that length
+                    route = a_route(sector,
+                                    to_sector,
+                                    self.can_move_diagonally(),
+                                    self.missing_links,
+                                    enemy_drones,
+                                    min_length = d)
+                    #print("nearest() checking route %s" % route)
+                    if route == None:
+                        continue
+                    drones = drones_en_route(route, self.drones)
                     return (name, sector, d, drones, self.route_traverses_unexplored_sectors(route))
         return ("", None, max_length, [], False)
 
